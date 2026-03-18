@@ -5,20 +5,21 @@ export default function Button({
   icon,
   iconPosition = "left",
   onClick,
-  type = "button",
+  type = "button", // Default type 'button' rakhna best practice hai
   variant = "primary",
   size = "md",
   className = "",
 }) {
 
   const baseStyle =
-    "rounded-md font-medium transition-all duration-200 flex items-center justify-center gap-2";
+    "rounded-full font-medium transition-all duration-200 flex items-center justify-center gap-2";
 
   const variants = {
-    primary: "bg-[#2BA3FF] text-white hover:bg-[#1f8fdf]",
+    // Aapka perfect color combination:
+    primary: "bg-[#2A4150] text-white hover:bg-[#1F3342]",
     secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300",
     outline:
-      "border border-[#2BA3FF] text-[#2BA3FF] hover:bg-[#2BA3FF] hover:text-white",
+      "border border-[#1F3342] text-[#1F3342] hover:bg-[#1F3342] hover:text-white",
   };
 
   const sizes = {
