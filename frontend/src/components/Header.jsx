@@ -1,80 +1,113 @@
+"use client";
+
 import Link from "next/link";
 import { ShoppingCart, User, Search, MapPin } from "lucide-react";
 import SearchField from "./ui/SearchField";
+import LoginModal from "./modals/LoginModal";
+import { useState } from "react";
+import Button from "./ui/Button";
 
 export default function Header() {
-    return (
-        <header className="w-full border-b bg-white">
-            {/* Top Header */}
-            <div className="flex items-center justify-between px-6 lg:px-10 py-3 max-w-7xl mx-auto">
-                {/* Logo */}
-                <Link href="/" className="text-2xl font-bold">
-                    <span className="text-blue-600">mama</span>
-                    <span className="text-green-500">earth</span>
-                </Link>
+  const [openLogin, setOpenLogin] = useState(false);
 
-                {/* Search */}
-                <div className="hidden md:flex items-center border border-gray-300 rounded-md overflow-hidden w-[400px] lg:w-[450px]">
-                    <SearchField/>
-                </div>
+  const categories = [
+    "HOME", "FACE", "HAIR", "MAKEUP", "BODY",
+    "BABY", "COMBOS", "NEW LAUNCHES", "INGREDIENT", "BLOG",
+  ];
 
-                {/* Right Icons */}
-                <div className="flex items-center gap-4 lg:gap-6">
-                    {/* Store Locator (from original design) */}
-                    <div className="hidden lg:flex items-center gap-1 text-sm cursor-pointer hover:text-blue-600">
-                        <MapPin size={18} />
-                        <span>Store Locator</span>
-                    </div>
+  return (
+    <>
+      <header className="w-full sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-[#e0e0e0]">
+        
+        {/* Main Header Container */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            
+            {/* Logo */}
+            <Link href="/" className="text-2xl md:text-3xl font-black tracking-tighter shrink-0">
+              <span className="text-[#2A4150]">Azz</span>
+              <span className="text-[#9ca0a3]">unique</span>
+            </Link>
 
-                    <div className="flex items-center gap-1 cursor-pointer hover:text-blue-600">
-                        <ShoppingCart size={20} />
-                        <span className="text-sm hidden sm:inline">Cart</span>
-                    </div>
-
-                    <div className="flex items-center gap-1 cursor-pointer hover:text-blue-600">
-                        <User size={20} />
-                        <span className="text-sm hidden sm:inline">Login</span>
-                    </div>
-                </div>
+            {/* Desktop Search */}
+            <div className="hidden md:block flex-1 max-w-xl mx-8">
+              <SearchField showButton={true} />
             </div>
 
-            {/* Mobile Search (visible only on mobile) */}
-            <div className="md:hidden px-4 pb-3">
-                <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
-                    <input
-                        type="text"
-                        placeholder="Search for Ubtan..."
-                        className="flex-1 px-3 py-2 outline-none text-sm"
-                    />
-                    <button className="bg-blue-600 text-white px-3 py-2">
-                        <Search size={18} />
-                    </button>
-                </div>
-            </div>
+            {/* Actions */}
+            <div className="flex items-center gap-4 md:gap-6">
+              <div className="hidden xl:flex items-center gap-2 text-sm font-medium text-slate-600 cursor-pointer hover:text-[#2A4150] transition-colors group">
+                <MapPin size={20} className="group-hover:animate-bounce" />
+                <span>Store Locator</span>
+              </div>
 
-            {/* Menu */}
-            <nav className="border-t hidden lg:block">
-                <div className="flex justify-center items-center gap-6 xl:gap-8 py-3 text-xs font-medium text-gray-700 max-w-7xl mx-auto">
-                    <Link href="/" className="hover:text-blue-600 transition-colors">HOME</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">FACE</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">HAIR</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">MAKEUP</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">BODY</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">BABY</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">COMBOS</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">NEW LAUNCHES</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">INGREDIENT</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">ALL PRODUCTS</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">BLOG</Link>
-                    <Link href="#" className="hover:text-blue-600 transition-colors">PLANT GOODNESS</Link>
+              <Link href="/cart" className="flex items-center gap-2 text-slate-700 hover:text-[#2A4150] relative">
+                <div className="relative">
+                  <ShoppingCart size={24} />
+                  <span className="absolute -top-2 -right-2 bg-[#2A4150] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                    0
+                  </span>
                 </div>
-            </nav>
+                <span className="hidden sm:inline font-medium text-sm">Cart</span>
+              </Link>
 
-            {/* Mobile Menu Indicator */}
-            <div className="lg:hidden border-t py-2 px-4 text-xs text-gray-500 flex items-center justify-between">
-                <span>Menu</span>
-                <span className="text-blue  -600">▼</span>
+              {/* Mobile User Icon / Desktop Button */}
+              <button onClick={() => setOpenLogin(true)} className="md:hidden text-slate-700">
+                <User size={24} />
+              </button>
+              
+              <Button
+                text="Login"
+                onClick={() => setOpenLogin(true)}
+                className="hidden md:block px-5 py-2"
+              />
             </div>
-        </header>
-    );
+          </div>
+        </div>
+
+        {/* Mobile Search Bar */}
+        <div className="md:hidden px-4 pb-3">
+          <SearchField showButton={false} />
+        </div>
+
+        {/* --- NAVIGATION: Horizontal Scroll for Mobile, Justified for Desktop --- */}
+        <nav className="border-t border-slate-50 bg-white overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4">
+            {/* scrollbar-hide: custom class (optional) 
+                flex-nowrap + overflow-x-auto: Enables swiping on mobile
+            */}
+            <ul className="flex items-center gap-6 md:justify-between py-3 overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap">
+              {categories.map((item) => {
+                const slug = item.toLowerCase().replace(" ", "-");
+                return (
+                  <li key={item} className="shrink-0">
+                    <Link
+                      href={item === "HOME" ? "/" : `/category/${slug}`}
+                      className="text-[11px] md:text-[12px] font-bold text-slate-600 hover:text-[#2A4150] tracking-widest transition-colors relative group"
+                    >
+                      {item}
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#2A4150] transition-all group-hover:w-full"></span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </nav>
+      </header>
+
+      <LoginModal isOpen={openLogin} onClose={() => setOpenLogin(false)} />
+      
+      {/* Scrollbar hide CSS (Add to your globals.css or use inline) */}
+      <style jsx>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+    </>
+  );
 }
