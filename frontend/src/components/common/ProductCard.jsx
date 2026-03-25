@@ -4,6 +4,9 @@ import React from "react";
 import { Star, BadgeCheck } from "lucide-react";
 import Button from "../ui/Button";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, removeFromCart, updateQty } from "@/store/cartSlice";
+import QuantitySelector from "./QuantitySelector";
 
 export default function ProductCard({
   id,
@@ -16,6 +19,9 @@ export default function ProductCard({
   price,
   badge,
 }) {
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items);
+  const cartItem = cartItems.find((item) => item.id === id);
   return (
     <Link href={`/product/${id}`}>
       <div className="relative bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col w-75">
@@ -56,15 +62,41 @@ export default function ProductCard({
         </div>
 
         <div className="px-2 pb-2 bg-[#e0e0e0]">
-          {/* Button will now pick up the primary variant styles from your Button component */}
-          <Button
-            text="ADD TO CART"
-            className="w-full font-bold py-3 rounded-md text-lg tracking-wide"
-            onClick={(e) => {
-              e.preventDefault();
-              console.log("Add to cart", id);
-            }}
-          />
+          {!cartItem ? (
+            <Button
+              text="ADD TO CART"
+              className="w-full h-11.25 font-bold py-3 rounded-md text-lg tracking-wide bg-[#2A4150] text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dispatch(addToCart({ id, image, title, price }));
+              }}
+            />
+          ) : (
+            /* Selector Wrapper */
+            <div
+              className="w-full h-11.25 bg-[#2A4150] rounded-md overflow-hidden"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              <QuantitySelector
+                variant="button"
+                quantity={cartItem.quantity}
+                showRemove={false}
+                className="h-[full]"
+                onIncrease={() => dispatch(updateQty({ id, delta: 1 }))}
+                onDecrease={() => {
+                  if (cartItem.quantity === 1) {
+                    dispatch(removeFromCart(id));
+                  } else {
+                    dispatch(updateQty({ id, delta: -1 }));
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </Link>

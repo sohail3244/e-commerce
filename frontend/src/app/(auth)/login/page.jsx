@@ -5,14 +5,18 @@ import { dummyUsers } from "@/lib/DummyData";
 import { ChevronLeft, ShieldCheck, Smartphone } from "lucide-react";
 import InputField from "@/components/ui/InputField";
 import Button from "@/components/ui/Button";
+import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "@/store/authSlice";
+import toast from "react-hot-toast";
 
-export default function Login() {
+export default function Login({ title, onSuccess }) {
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showCreateAccount, setShowCreateAccount] = useState(false);
+  const dispatch = useDispatch();
 
   const handleSendOtp = () => {
     setError("");
@@ -30,11 +34,29 @@ export default function Login() {
   };
 
   const handleVerifyOtp = () => {
-    setError("");
-    const user = dummyUsers.find((u) => u.mobile === mobile && u.otp === otp);
-    if (user) console.log("Success");
-    else setError("Invalid OTP. Hint: check your dummy data.");
-  };
+  setError("");
+
+  if (otp.length !== 4) {
+    toast.error("Enter valid 4-digit OTP ❌");
+    return;
+  }
+
+  const user = dummyUsers.find(
+    (u) => u.mobile === mobile && u.otp === otp
+  );
+
+  if (user) {
+    dispatch(loginSuccess(user));
+
+    // ✅ success toast
+    toast.success("Login Successful");
+
+    if (onSuccess) onSuccess(user);
+
+  } else {
+    toast.error("Invalid OTP");
+  }
+};
 
   return (
     <div className="w-full bg-white rounded-2xl overflow-hidden">
@@ -49,7 +71,7 @@ export default function Login() {
           </button>
         )}
         <h2 className="text-lg font-bold text-[#2A4150]">
-          {step === 1 ? "Login " : "Verify Details"}
+          {step === 1 ? title || "Login" : "Verify Details"}
         </h2>
       </div>
 
@@ -82,6 +104,7 @@ export default function Login() {
                 +91
               </span>
               <InputField
+                inputMode="numeric"
                 type="tel"
                 maxLength={10}
                 placeholder="Mobile Number"
@@ -107,11 +130,8 @@ export default function Login() {
                 Forgot Password?
               </span>
 
-              <span
-                onClick={() => setShowCreateAccount(true)}
-                className="cursor-pointer hover:text-[#2A4150] font-semibold"
-              >
-                Create Account
+              <span>
+                <Link href="/register">New User? Register</Link>
               </span>
             </div>
           </div>

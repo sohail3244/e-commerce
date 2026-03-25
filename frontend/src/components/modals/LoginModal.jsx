@@ -1,3 +1,5 @@
+"use client";
+
 import Login from "@/app/(auth)/login/page";
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
@@ -5,13 +7,13 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
 
   const handleLoginSuccess = () => {
     if (onLoginSuccess) onLoginSuccess();
-    onClose();
+    onClose(); // modal close
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 z-9999 grid place-items-center p-4">
 
-      <div className="relative w-full max-w-105 my-auto bg-white rounded-2xl overflow-hidden">
+      <div className="relative w-full max-w-md bg-white rounded-2xl overflow-hidden">
 
         {/* Close Button */}
         <button
@@ -21,7 +23,10 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
           ✕
         </button>
 
-        <Login onSuccess={handleLoginSuccess} />
+        <Login
+          title="Login"
+          onSuccess={handleLoginSuccess}
+        />
 
       </div>
 

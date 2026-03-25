@@ -17,8 +17,8 @@ export default function ProductSection({
 
   // Filter logic
  const filteredProducts = products.filter((p) => {
-  if (subCategory) return p.subCategory === subCategory;
-  if (category) return p.category === category;
+  if (subCategory) return p.subCategory?.toLowerCase() === subCategory.toLowerCase();
+  if (category) return p.category?.toLowerCase() === category.toLowerCase();
   return true;
 });
 

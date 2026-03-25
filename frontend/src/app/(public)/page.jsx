@@ -4,8 +4,7 @@ import { products } from "@/lib/DummyData";
 
 export default function Home() {
   return (
-    <>
-    <div className="space-y-6 ">
+    <main className="min-h-screen">
       <HeroSlider
         images={[
           {
@@ -23,24 +22,24 @@ export default function Home() {
           },
         ]}
       />
-</div>
-<div>
-      {/* Best Sellers */}
-      <ProductSection
-        title="Best Sellers"
-        description="Explore best-selling safe, natural products"
-        products={products}
-        category="skincare"
-      />
 
-      {/* Only Sunscreen */}
-      <ProductSection
-        title="Sunscreen Products"
-        description="Protect your skin from UV rays"
-        products={products}
-        subCategory="sunscreen"
-      />
-    </div>
-    </>
+      <div className="space-y-10 py-10">
+        {/* Best Sellers - Category check karein */}
+        <ProductSection
+          title="Best Sellers"
+          description="Explore best-selling safe, natural products"
+          products={products}
+          category="face" // Make sure products have 'skincare' category
+        />
+
+        {/* Only Sunscreen - SubCategory check karein */}
+        <ProductSection
+          title="Sunscreen Products"
+          description="Protect your skin from UV rays"
+          products={products}
+          subCategory="sunscreen" // Make sure products have 'sunscreen' subCategory
+        />
+      </div>
+    </main>
   );
 }

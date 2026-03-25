@@ -6,25 +6,44 @@ import SearchField from "./ui/SearchField";
 import LoginModal from "./modals/LoginModal";
 import { useState } from "react";
 import Button from "./ui/Button";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "@/store/authSlice";
 
 export default function Header() {
   const [openLogin, setOpenLogin] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
+  const cartItems = useSelector((state) => state.cart.items);
+  const totalQuantity = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0,
+  );
+  const { user, isLoggedIn } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   const categories = [
-    "HOME", "FACE", "HAIR", "MAKEUP", "BODY",
-    "BABY", "COMBOS", "NEW LAUNCHES", "INGREDIENT", "BLOG",
+    "HOME",
+    "FACE",
+    "HAIR",
+    "MAKEUP",
+    "BODY",
+    "BABY",
+    "COMBOS",
+    "NEW LAUNCHES",
+    "INGREDIENT",
+    "BLOG",
   ];
 
   return (
     <>
       <header className="w-full sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-[#e0e0e0]">
-        
         {/* Main Header Container */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
           <div className="flex items-center justify-between h-16 md:h-20">
-            
             {/* Logo */}
-            <Link href="/" className="text-2xl md:text-3xl font-black tracking-tighter shrink-0">
+            <Link
+              href="/"
+              className="text-2xl md:text-3xl font-black tracking-tighter shrink-0"
+            >
               <span className="text-[#2A4150]">Azz</span>
               <span className="text-[#9ca0a3]">unique</span>
             </Link>
@@ -41,26 +60,98 @@ export default function Header() {
                 <span>Store Locator</span>
               </div>
 
-              <Link href="/cart" className="flex items-center gap-2 text-slate-700 hover:text-[#2A4150] relative">
+              <Link
+                href="/cart"
+                className="flex items-center gap-2 text-slate-700 hover:text-[#2A4150] relative"
+              >
                 <div className="relative">
                   <ShoppingCart size={24} />
-                  <span className="absolute -top-2 -right-2 bg-[#2A4150] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                    0
-                  </span>
+                  {totalQuantity > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-[#2A4150] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                      {totalQuantity}
+                    </span>
+                  )}
                 </div>
-                <span className="hidden sm:inline font-medium text-sm">Cart</span>
+                <span className="hidden sm:inline font-medium text-sm">
+                  Cart
+                </span>
               </Link>
 
               {/* Mobile User Icon / Desktop Button */}
-              <button onClick={() => setOpenLogin(true)} className="md:hidden text-slate-700">
+              <button
+                onClick={() => {
+                  if (isLoggedIn) {
+                    dispatch(logout());
+                  } else {
+                    setOpenLogin(true);
+                  }
+                }}
+                className="md:hidden text-slate-700"
+              >
                 <User size={24} />
               </button>
-              
-              <Button
-                text="Login"
-                onClick={() => setOpenLogin(true)}
-                className="hidden md:block px-5 py-2"
-              />
+
+              <div className="relative hidden md:block">
+  {isLoggedIn ? (
+    <>
+      <button
+        onClick={() => setOpenMenu(!openMenu)}
+        className="flex items-center gap-2 text-[#2A4150]"
+      >
+        <User size={22} />
+        <span className="text-sm font-semibold">
+          {user.name}
+        </span>
+      </button>
+
+      {/* DROPDOWN */}
+      {openMenu && (
+        <div className="absolute right-0 mt-3 w-56 bg-white border border-[#e0e0e0] rounded-lg shadow-lg z-50 overflow-hidden">
+
+          <Link href="/profile" className="block px-4 py-3 hover:bg-slate-50 text-sm">
+            Your Profile
+          </Link>
+
+          <Link href="/orders" className="block px-4 py-3 hover:bg-slate-50 text-sm">
+            Your Orders
+          </Link>
+
+          <Link href="/cards" className="block px-4 py-3 hover:bg-slate-50 text-sm">
+            Saved Cards
+          </Link>
+
+          <Link href="/address" className="block px-4 py-3 hover:bg-slate-50 text-sm">
+            Manage Address
+          </Link>
+
+          <Link href="/contact" className="block px-4 py-3 hover:bg-slate-50 text-sm">
+            Contact Us
+          </Link>
+
+          {/* Divider */}
+          <div className="border-t border-[#e0e0e0]" />
+
+          {/* Logout */}
+          <button
+            onClick={() => {
+              dispatch(logout());
+              setOpenMenu(false);
+            }}
+            className="w-full text-left px-4 py-3 text-red-500 hover:bg-red-50 text-sm font-semibold"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+    </>
+  ) : (
+    <Button
+      text="Login"
+      onClick={() => setOpenLogin(true)}
+      className="px-5 py-2"
+    />
+  )}
+</div>
             </div>
           </div>
         </div>
@@ -97,7 +188,7 @@ export default function Header() {
       </header>
 
       <LoginModal isOpen={openLogin} onClose={() => setOpenLogin(false)} />
-      
+
       {/* Scrollbar hide CSS (Add to your globals.css or use inline) */}
       <style jsx>{`
         .no-scrollbar::-webkit-scrollbar {
