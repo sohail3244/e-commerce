@@ -18,13 +18,16 @@ export default function ProductCard({
   reviews,
   price,
   badge,
+  className = "",
 }) {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
   const cartItem = cartItems.find((item) => item.id === id);
   return (
     <Link href={`/product/${id}`}>
-      <div className="relative bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col w-75">
+      <div
+        className={`relative bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col w-75 h-full ${className}`}
+      >
         {badge && (
           /* Badge color updated to match primary theme or a complementary deep shade */
           <div className="absolute top-0 left-0 bg-[#2A4150] text-white text-[10px] font-bold px-2 py-1 rounded-br-lg z-10 uppercase">
@@ -37,16 +40,16 @@ export default function ProductCard({
         </div>
 
         <div className="px-4 pb-2 flex flex-col items-center text-center gap-2 flex-1 bg-[#e0e0e0]">
-          <h3 className="text-[17px] leading-tight font-medium text-slate-800">
+          <h3 className="text-[17px] leading-tight font-medium text-slate-800 line-clamp-2 min-h-11">
             {title}
           </h3>
 
           {/* Organic green color remains for natural feel, but slate works for text context */}
-          <p className="text-[15px] font-medium text-[#689F38]">
+          <p className="text-[15px] font-medium text-[#689F38] line-clamp-2 min-h-11">
             {description}
           </p>
 
-          <span className="text-[16px] text-slate-700 font-medium mt-1">
+          <span className="text-[16px] text-slate-700 font-medium mt-1 min-h-6">
             {size}
           </span>
 
@@ -58,10 +61,12 @@ export default function ProductCard({
             <span className="text-[#2A4150]">{reviews} Reviews</span>
           </div>
 
-          <div className="text-2xl font-bold text-slate-900 mt-1">₹{price}</div>
+          <div className="text-2xl font-bold text-slate-900 mt-auto">
+            ₹{price}
+          </div>
         </div>
 
-        <div className="px-2 pb-2 bg-[#e0e0e0]">
+        <div className="px-2 pb-2 bg-[#e0e0e0] mt-auto">
           {!cartItem ? (
             <Button
               text="ADD TO CART"

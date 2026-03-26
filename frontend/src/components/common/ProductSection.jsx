@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Button from "../ui/Button";
 import ProductCard from "./ProductCard";
+import Link from "next/link";
 
 export default function ProductSection({
   title,
@@ -12,17 +13,17 @@ export default function ProductSection({
   category,
   subCategory,
 }) {
-
   const scrollRef = useRef();
 
   // Filter logic
- const filteredProducts = products.filter((p) => {
-  if (subCategory) return p.subCategory?.toLowerCase() === subCategory.toLowerCase();
-  if (category) return p.category?.toLowerCase() === category.toLowerCase();
-  return true;
-});
+  const filteredProducts = products.filter((p) => {
+    if (subCategory)
+      return p.subCategory?.toLowerCase() === subCategory.toLowerCase();
+    if (category) return p.category?.toLowerCase() === category.toLowerCase();
+    return true;
+  });
 
-if (!filteredProducts.length) return null;
+  if (!filteredProducts.length) return null;
 
   // Scroll functions
   const scrollLeft = () => {
@@ -35,29 +36,25 @@ if (!filteredProducts.length) return null;
 
   return (
     <section className="w-full px-4 md:px-8 lg:px-12 py-10">
-
       {/* Header */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-2xl font-semibold text-slate-800">
-            {title}
-          </h2>
-          <p className="text-sm text-slate-500 mt-1 max-w-2xl">
-            {description}
-          </p>
+          <h2 className="text-2xl font-semibold text-slate-800">{title}</h2>
+          <p className="text-sm text-slate-500 mt-1 max-w-2xl">{description}</p>
         </div>
 
-        <Button
-          text="VIEW ALL"
-          variant="primary"
-          size="sm"
-          className="px-4 py-2"
-        />
+        <Link href="/category/best-seller">
+          <Button
+            text="VIEW ALL"
+            variant="primary"
+            size="sm"
+            className="px-4 py-2"
+          />
+        </Link>
       </div>
 
       {/* Slider Container */}
-      <div className="relative">
-
+      <div className=" relative">
         {/* Left Arrow */}
         <button
           onClick={scrollLeft}
@@ -88,9 +85,7 @@ if (!filteredProducts.length) return null;
             </div>
           ))}
         </div>
-
       </div>
-
     </section>
   );
 }

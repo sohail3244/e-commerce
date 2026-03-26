@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, User, Search, MapPin } from "lucide-react";
+import { ShoppingCart, User, MapPin, ChevronDown, LogOut } from "lucide-react";
 import SearchField from "./ui/SearchField";
 import LoginModal from "./modals/LoginModal";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "./ui/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/store/authSlice";
@@ -12,6 +12,7 @@ import { logout } from "@/store/authSlice";
 export default function Header() {
   const [openLogin, setOpenLogin] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+  const menuRef = useRef(null);
   const cartItems = useSelector((state) => state.cart.items);
   const totalQuantity = cartItems.reduce(
     (total, item) => total + item.quantity,
@@ -33,11 +34,36 @@ export default function Header() {
     "BLOG",
   ];
 
+  useEffect(() => {
+  function handleClickOutside(event) {
+    if (menuRef.current && !menuRef.current.contains(event.target)) {
+      setOpenMenu(false);
+    }
+  }
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
+useEffect(() => {
+  function handleScroll() {
+    setOpenMenu(false);
+  }
+
+  window.addEventListener("scroll", handleScroll);
+
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+  };
+}, []);
+
   return (
     <>
       <header className="w-full sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-[#e0e0e0]">
-        {/* Main Header Container */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="max-w-full  mx-auto px-4 sm:px-6 lg:px-10">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link
@@ -60,6 +86,7 @@ export default function Header() {
                 <span>Store Locator</span>
               </div>
 
+              {/* Cart */}
               <Link
                 href="/cart"
                 className="flex items-center gap-2 text-slate-700 hover:text-[#2A4150] relative"
@@ -77,81 +104,92 @@ export default function Header() {
                 </span>
               </Link>
 
-              {/* Mobile User Icon / Desktop Button */}
-              <button
-                onClick={() => {
-                  if (isLoggedIn) {
-                    dispatch(logout());
-                  } else {
-                    setOpenLogin(true);
-                  }
-                }}
-                className="md:hidden text-slate-700"
-              >
-                <User size={24} />
-              </button>
+              {/* USER SECTION: Responsive Dropdown */}
+              <div className="relative" ref={menuRef}>
+                {isLoggedIn ? (
+                  <>
+                    <button
+                      onClick={() => setOpenMenu(!openMenu)}
+                      className="flex items-center gap-1 text-[#2A4150] hover:bg-slate-50 p-1 rounded-lg transition-colors"
+                    >
+                      <div className="bg-slate-100 p-1.5 rounded-full">
+                        <User size={22} />
+                      </div>
+                      {/* <span className="hidden md:block text-sm font-semibold max-w-25 truncate">
+                        {user?.name}
+                      </span> */}
+                    </button>
 
-              <div className="relative hidden md:block">
-  {isLoggedIn ? (
-    <>
-      <button
-        onClick={() => setOpenMenu(!openMenu)}
-        className="flex items-center gap-2 text-[#2A4150]"
-      >
-        <User size={22} />
-        <span className="text-sm font-semibold">
-          {user.name}
-        </span>
-      </button>
+                    {/* DROPDOWN MENU - Works on Mobile and Desktop */}
+                    {openMenu && (
+                      <div className="absolute right-0 mt-3 w-56 bg-white border border-[#e0e0e0] rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 md:hidden">
+                          <p className="text-xs text-slate-500">Welcome,</p>
+                          <p className="text-sm font-bold text-[#2A4150] truncate">
+                            {user?.name}
+                          </p>
+                        </div>
 
-      {/* DROPDOWN */}
-      {openMenu && (
-        <div className="absolute right-0 mt-3 w-56 bg-white border border-[#e0e0e0] rounded-lg shadow-lg z-50 overflow-hidden">
+                        <div className="py-1">
+                          <Link
+                            href="/profile"
+                            onClick={() => setOpenMenu(false)}
+                            className="block px-4 py-2.5 hover:bg-slate-50 text-sm text-slate-600"
+                          >
+                            Your Profile
+                          </Link>
+                          <Link
+                            href="/orders"
+                            onClick={() => setOpenMenu(false)}
+                            className="block px-4 py-2.5 hover:bg-slate-50 text-sm text-slate-600"
+                          >
+                            Your Orders
+                          </Link>
+                          <Link
+                            href="/cards"
+                            onClick={() => setOpenMenu(false)}
+                            className="block px-4 py-2.5 hover:bg-slate-50 text-sm text-slate-600"
+                          >
+                            Saved Cards
+                          </Link>
+                          <Link
+                            href="/address"
+                            onClick={() => setOpenMenu(false)}
+                            className="block px-4 py-2.5 hover:bg-slate-50 text-sm text-slate-600"
+                          >
+                            Manage Address
+                          </Link>
+                          <Link
+                            href="/contact"
+                            onClick={() => setOpenMenu(false)}
+                            className="block px-4 py-2.5 hover:bg-slate-50 text-sm text-slate-600"
+                          >
+                            Contact Us
+                          </Link>
+                        </div>
 
-          <Link href="/profile" className="block px-4 py-3 hover:bg-slate-50 text-sm">
-            Your Profile
-          </Link>
+                        <div className="border-t border-[#e0e0e0]" />
 
-          <Link href="/orders" className="block px-4 py-3 hover:bg-slate-50 text-sm">
-            Your Orders
-          </Link>
-
-          <Link href="/cards" className="block px-4 py-3 hover:bg-slate-50 text-sm">
-            Saved Cards
-          </Link>
-
-          <Link href="/address" className="block px-4 py-3 hover:bg-slate-50 text-sm">
-            Manage Address
-          </Link>
-
-          <Link href="/contact" className="block px-4 py-3 hover:bg-slate-50 text-sm">
-            Contact Us
-          </Link>
-
-          {/* Divider */}
-          <div className="border-t border-[#e0e0e0]" />
-
-          {/* Logout */}
-          <button
-            onClick={() => {
-              dispatch(logout());
-              setOpenMenu(false);
-            }}
-            className="w-full text-left px-4 py-3 text-red-500 hover:bg-red-50 text-sm font-semibold"
-          >
-            Logout
-          </button>
-        </div>
-      )}
-    </>
-  ) : (
-    <Button
-      text="Login"
-      onClick={() => setOpenLogin(true)}
-      className="px-5 py-2"
-    />
-  )}
-</div>
+                        <button
+                          onClick={() => {
+                            dispatch(logout());
+                            setOpenMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-3 text-red-500 hover:bg-red-50 text-sm font-bold flex items-center gap-2"
+                        >
+                          <LogOut size={16} /> Logout
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Button
+                    text="Login"
+                    onClick={() => setOpenLogin(true)}
+                    className="px-4 py-1.5 md:px-6 md:py-2 text-sm"
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -161,12 +199,9 @@ export default function Header() {
           <SearchField showButton={false} />
         </div>
 
-        {/* --- NAVIGATION: Horizontal Scroll for Mobile, Justified for Desktop --- */}
+        {/* Navigation */}
         <nav className="border-t border-slate-50 bg-white overflow-hidden">
           <div className="max-w-7xl mx-auto px-4">
-            {/* scrollbar-hide: custom class (optional) 
-                flex-nowrap + overflow-x-auto: Enables swiping on mobile
-            */}
             <ul className="flex items-center gap-6 md:justify-between py-3 overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap">
               {categories.map((item) => {
                 const slug = item.toLowerCase().replace(" ", "-");
@@ -189,7 +224,6 @@ export default function Header() {
 
       <LoginModal isOpen={openLogin} onClose={() => setOpenLogin(false)} />
 
-      {/* Scrollbar hide CSS (Add to your globals.css or use inline) */}
       <style jsx>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;

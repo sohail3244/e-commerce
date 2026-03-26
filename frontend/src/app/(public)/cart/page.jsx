@@ -77,7 +77,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] py-8 md:py-16 px-4">
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full mx-auto">
         {/* Header */}
         <div className="mb-10">
           <Link
