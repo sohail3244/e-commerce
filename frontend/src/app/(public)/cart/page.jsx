@@ -17,7 +17,7 @@ import QuantitySelector from "@/components/common/QuantitySelector";
 
 // ✅ Redux
 import { useSelector, useDispatch } from "react-redux";
-import { updateQty, removeFromCart } from "@/store/cartSlice";
+import { updateQty, removeFromCart } from "@/store/slices/cartSlice";
 
 export default function CartPage() {
   const reduxItems = useSelector((state) => state.cart.items);

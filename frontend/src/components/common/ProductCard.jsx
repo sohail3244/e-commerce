@@ -5,7 +5,7 @@ import { Star, BadgeCheck } from "lucide-react";
 import Button from "../ui/Button";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart, removeFromCart, updateQty } from "@/store/cartSlice";
+import { addToCart, removeFromCart, updateQty } from "@/store/slices/cartSlice";
 import QuantitySelector from "./QuantitySelector";
 
 export default function ProductCard({
@@ -29,7 +29,6 @@ export default function ProductCard({
         className={`relative bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col w-75 h-full ${className}`}
       >
         {badge && (
-          /* Badge color updated to match primary theme or a complementary deep shade */
           <div className="absolute top-0 left-0 bg-[#2A4150] text-white text-[10px] font-bold px-2 py-1 rounded-br-lg z-10 uppercase">
             {badge}
           </div>
@@ -44,7 +43,6 @@ export default function ProductCard({
             {title}
           </h3>
 
-          {/* Organic green color remains for natural feel, but slate works for text context */}
           <p className="text-[15px] font-medium text-[#689F38] line-clamp-2 min-h-11">
             {description}
           </p>
@@ -56,7 +54,6 @@ export default function ProductCard({
           <div className="flex items-center justify-center gap-1 text-[14px] font-semibold text-slate-700 mt-1">
             <Star size={14} className="text-[#FFC107] fill-[#FFC107]" />
             <span>{rating}</span>
-            {/* Badge color updated to match theme context */}
             <BadgeCheck size={16} className="text-[#2A4150] ml-1" />
             <span className="text-[#2A4150]">{reviews} Reviews</span>
           </div>
@@ -78,7 +75,6 @@ export default function ProductCard({
               }}
             />
           ) : (
-            /* Selector Wrapper */
             <div
               className="w-full h-11.25 bg-[#2A4150] rounded-md overflow-hidden"
               onClick={(e) => {

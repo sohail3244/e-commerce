@@ -4,19 +4,17 @@ import React, { useId } from "react";
 
 export default function TextAreaField({
   label,
-  name,
   placeholder = "Enter your message...",
   error,
   hint,
   rows = 4,
   maxLength,
-  value,
-  onChange,
   isRequired = false,
   isDisabled = false,
-  resize = "vertical", // none | vertical | horizontal | both
+  resize = "vertical",
   className = "",
   containerClassName = "",
+  ...rest // 👈 register yahan aayega
 }) {
   const id = useId();
 
@@ -30,27 +28,20 @@ export default function TextAreaField({
   return (
     <div className={`flex flex-col gap-1 w-full ${containerClassName}`}>
       
-      {/* Label */}
       {label && (
-        <label
-          htmlFor={id}
-          className="text-sm font-medium text-slate-700"
-        >
+        <label htmlFor={id} className="text-sm font-medium text-slate-700">
           {label}
           {isRequired && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
 
-      {/* Textarea - Focus colors updated to #2A4150 */}
       <textarea
         id={id}
         rows={rows}
-        value={value}
-        onChange={onChange}
         placeholder={placeholder}
         maxLength={maxLength}
         disabled={isDisabled}
-        name={name} 
+        {...rest} // ✅ React Hook Form connect
         className={`
           w-full border border-slate-300 rounded-md px-3 py-2 text-sm
           bg-white outline-none transition-all
@@ -62,9 +53,7 @@ export default function TextAreaField({
         `}
       />
 
-      {/* Hint / Error / Character Count */}
       <div className="flex justify-between items-center text-xs mt-1">
-        
         {error ? (
           <span className="text-red-500 font-medium">{error}</span>
         ) : (
@@ -73,11 +62,10 @@ export default function TextAreaField({
 
         {maxLength && (
           <span className="text-slate-400">
-            {value?.length || 0}/{maxLength}
+            {/* 👇 RHF me value nahi milega direct, optional hai */}
           </span>
         )}
       </div>
-
     </div>
   );
 }

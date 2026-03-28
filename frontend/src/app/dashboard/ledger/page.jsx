@@ -27,16 +27,21 @@ export default function Ledger() {
       status: "failed",
     },
   ];
+
   return (
-    <div className="flex flex-col gap-4 p-6 w-full ">
+    <div className="flex flex-col gap-6 p-4 md:p-6 w-full bg-white min-h-screen">
       {/* Header Section */}
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900"> Ledger</h1>
-        <p className="text-muted-foreground">Monitor your revenue, orders, and inventory performance.</p>
+      <header className="space-y-1">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#2A4150]">
+          Ledger
+        </h1>
+        <p className="text-sm md:text-base text-slate-500">
+          Monitor your revenue, orders, and inventory performance.
+        </p>
       </header>
 
-      {/* Stats Grid */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stats Grid - Mobile/Tablet par 1, Laptop par 2 cards */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 max-w-5xl">
         <StatCard 
           title="Total Revenue" 
           value="₹0.00" 
@@ -67,12 +72,21 @@ export default function Ledger() {
         />
       </section>
 
-      {/* Table Section */}
-      <section className="rounded-xl  bg-card text-card-foreground shadow-sm">
-        
-          
-          <LedgerTable data={ledgerData} />
-      </section>
+      {/* Table Section - Tablet aur Mobile dono par scrollable */}
+<section className="mt-4 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+  <div className="p-4 border-b border-slate-100">
+    <h2 className="font-semibold text-[#2A4150]">Recent Transactions</h2>
+  </div>
+  
+  {/* 1. overflow-x-auto: Side scroll enable karta hai.
+      2. w-full: Container ki poori width leta hai.
+  */}
+  <div className="overflow-x-auto w-full">
+    <div className="inline-block min-w-full align-middle">
+      <LedgerTable data={ledgerData} />
+    </div>
+  </div>
+</section>
     </div>
   )
 }
