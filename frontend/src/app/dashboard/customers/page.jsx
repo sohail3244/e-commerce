@@ -1,19 +1,32 @@
+'use client';
+
 import StatCard from "@/components/common/StatCard";
+import AddCustomerModal from "@/components/modals/AddCustomerModal";
 import CustomerTable from "@/components/table/CustomerTable";
-import { IndianRupee, Users, UserCheck, UserMinus } from "lucide-react";
-import React from "react";
+import Button from "@/components/ui/Button";
+import {
+  Users,
+  UserCheck,
+  UserMinus,
+  UserPlus,
+} from "lucide-react";
+import React, { useState } from "react";
 
 export default function Customers() {
+  const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 w-full bg-white min-h-screen">
       {/* Header Section */}
-      <header className="space-y-1">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#2A4150]">
-          Customers
-        </h1>
-        <p className="text-sm md:text-base text-slate-500">
-          Manage and monitor your customer database and their activities.
-        </p>
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#2A4150]">
+            Customers
+          </h1>
+          <p className="text-sm md:text-base text-slate-500">
+            Manage and monitor your customer database and their activities.
+          </p>
+        </div>
+        <Button onClick={() => setOpen(true)} text="Add Customer" icon={<UserPlus size={18} />} />
       </header>
 
       {/* Stats Grid - Tablet tak 1 card, Laptop/Desktop par 2 cards */}
@@ -61,6 +74,10 @@ export default function Customers() {
           </div>
         </div>
       </section>
+      <AddCustomerModal
+        open={open}
+        onClose={() => setOpen(false)}
+      />
     </div>
   );
 }

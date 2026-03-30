@@ -12,32 +12,45 @@ import Button from "./ui/Button";
 import { closeLogin, logout, openLogin } from "@/store/slices/authSlice";
 
 const CATEGORIES = [
-  "HOME", "FACE", "HAIR", "MAKEUP", "BODY", 
-  "BABY", "COMBOS", "NEW LAUNCHES", "INGREDIENT", "BLOG"
+  "HOME",
+  "FACE",
+  "HAIR",
+  "MAKEUP",
+  "BODY",
+  "BABY",
+  "COMBOS",
+  "NEW LAUNCHES",
+  "INGREDIENT",
+  "BLOG",
 ];
 
 export default function Header() {
   const router = useRouter();
   const dispatch = useDispatch();
   const menuRef = useRef(null);
-  
+
   const [openMenu, setOpenMenu] = useState(false);
 
-  const { user, isAuthenticated, openLoginModal } = useSelector((state) => state.auth);
+  const { user, isAuthenticated, openLoginModal } = useSelector(
+    (state) => state.auth,
+  );
   const cartItems = useSelector((state) => state.cart.items);
-  const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const totalQuantity = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0,
+  );
 
   // Close menu on click outside or scroll
   useEffect(() => {
     const close = () => setOpenMenu(false);
-    
+
     function handleClickOutside(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) close();
     }
 
     document.addEventListener("mousedown", handleClickOutside);
     window.addEventListener("scroll", close);
-    
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("scroll", close);
@@ -55,9 +68,11 @@ export default function Header() {
       <header className="sticky top-0 z-50 w-full border-b border-[#e0e0e0] bg-white/95 backdrop-blur-md shadow-sm">
         <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-10">
           <div className="flex h-16 items-center justify-between md:h-20">
-            
             {/* Logo */}
-            <Link href="/" className="shrink-0 text-2xl font-black tracking-tighter md:text-3xl">
+            <Link
+              href="/"
+              className="shrink-0 text-2xl font-black tracking-tighter md:text-3xl"
+            >
               <span className="text-[#2A4150]">Azz</span>
               <span className="text-[#9ca0a3]">unique</span>
             </Link>
@@ -72,7 +87,10 @@ export default function Header() {
               <StoreLocator />
 
               {/* Cart */}
-              <Link href="/cart" className="relative flex items-center gap-2 text-slate-700 hover:text-[#2A4150]">
+              <Link
+                href="/cart"
+                className="relative flex items-center gap-2 text-slate-700 hover:text-[#2A4150]"
+              >
                 <div className="relative">
                   <ShoppingCart size={24} />
                   {totalQuantity > 0 && (
@@ -81,17 +99,19 @@ export default function Header() {
                     </span>
                   )}
                 </div>
-                <span className="hidden text-sm font-medium sm:inline">Cart</span>
+                <span className="hidden text-sm font-medium sm:inline">
+                  Cart
+                </span>
               </Link>
 
               {/* User Section */}
               <div className="relative" ref={menuRef}>
                 {isAuthenticated ? (
-                  <UserDropdown 
-                    user={user} 
-                    isOpen={openMenu} 
-                    setOpen={setOpenMenu} 
-                    onLogout={handleLogout} 
+                  <UserDropdown
+                    user={user}
+                    isOpen={openMenu}
+                    setOpen={setOpenMenu}
+                    onLogout={handleLogout}
                   />
                 ) : (
                   <Button
@@ -124,11 +144,13 @@ export default function Header() {
         </nav>
       </header>
 
-      <LoginModal isOpen={openLoginModal} onClose={() => dispatch(closeLogin())} />
+      <LoginModal
+        isOpen={openLoginModal}
+        onClose={() => dispatch(closeLogin())}
+      />
     </>
   );
 }
-
 
 function StoreLocator() {
   return (
@@ -144,7 +166,10 @@ function NavLink({ item }) {
   const href = item === "HOME" ? "/" : `/category/${slug}`;
 
   return (
-    <Link href={href} className="group relative text-[11px] font-bold tracking-widest text-slate-600 transition-colors hover:text-[#2A4150] md:text-[12px]">
+    <Link
+      href={href}
+      className="group relative text-[11px] font-bold tracking-widest text-slate-600 transition-colors hover:text-[#2A4150] md:text-[12px]"
+    >
       {item}
       <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-[#2A4150] transition-all group-hover:w-full" />
     </Link>
@@ -153,10 +178,9 @@ function NavLink({ item }) {
 
 function UserDropdown({ user, isOpen, setOpen, onLogout }) {
   const menuItems = [
-    { label: "Your Profile", href: "/profile" },
-    { label: "Your Orders", href: "/orders" },
-    { label: "Saved Cards", href: "/cards" },
-    { label: "Manage Address", href: "/address" },
+    { label: "Your Profile", href: "/customer/profile" },
+    { label: "Your Orders", href: "/customer/orders" },
+    { label: "Manage Address", href: "/customer/address" },
     { label: "Contact Us", href: "/contact-us" },
   ];
 
@@ -169,16 +193,18 @@ function UserDropdown({ user, isOpen, setOpen, onLogout }) {
         <div className="rounded-full bg-slate-100 p-1.5">
           <User size={22} />
         </div>
-        <span className="hidden max-w-25 truncate text-sm font-semibold md:block">
+        {/* <span className="hidden max-w-25 truncate text-sm font-semibold md:block">
           {user?.name}
-        </span>
+        </span> */}
       </button>
 
       {isOpen && (
         <div className="absolute right-0 mt-3 w-56 animate-in fade-in zoom-in duration-200 overflow-hidden rounded-xl border border-[#e0e0e0] bg-white shadow-xl z-50">
           <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 md:hidden">
             <p className="text-xs text-slate-500">Welcome,</p>
-            <p className="truncate text-sm font-bold text-[#2A4150]">{user?.name}</p>
+            <p className="truncate text-sm font-bold text-[#2A4150]">
+              {user?.name}
+            </p>
           </div>
 
           <div className="py-1">
@@ -193,7 +219,11 @@ function UserDropdown({ user, isOpen, setOpen, onLogout }) {
               </Link>
             ))}
             {user?.role?.toLowerCase() === "admin" && (
-              <Link href="/dashboard" onClick={() => setOpen(false)} className="block px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+              <Link
+                href="/dashboard"
+                onClick={() => setOpen(false)}
+                className="block px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
+              >
                 Admin Dashboard
               </Link>
             )}

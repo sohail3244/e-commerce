@@ -48,7 +48,6 @@ export default function SignUp({ mobile }) {
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-slate-50/50">
       <div className="max-w-2xl w-full bg-white p-6 md:p-10 rounded-3xl shadow-xl border border-slate-100">
-
         {/* Back */}
         <button
           onClick={() => router.back()}
@@ -67,7 +66,6 @@ export default function SignUp({ mobile }) {
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
           {/* Name + Email */}
           <div className="grid md:grid-cols-2 gap-6">
             <InputField
@@ -95,7 +93,6 @@ export default function SignUp({ mobile }) {
           <InputField
             label="Mobile Number"
             icon={Phone}
-            
             {...register("phone", { required: "Phone is required" })}
             error={errors.phone?.message}
           />
