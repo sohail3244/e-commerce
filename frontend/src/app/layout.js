@@ -3,6 +3,7 @@ import "./globals.css";
 import ReduxProvider from "@/providers/ReduxProvider";
 import { Toaster } from "react-hot-toast";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import AuthInitializer from "@/providers/AuthInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,17 +23,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <ReduxProvider>
           <ReactQueryProvider>
-          {children}  
-          <Toaster position="top-right" />
-          
+            <AuthInitializer>{children}</AuthInitializer>
+            <Toaster position="top-right" />
           </ReactQueryProvider>
-          
-          </ReduxProvider>
-        
+        </ReduxProvider>
       </body>
     </html>
   );

@@ -12,7 +12,7 @@ export default function DashboardPage() {
     if (!user) {
       router.push("/login");
     } else if (user.role !== "Admin") {
-      router.push("/"); // block non-admin
+      router.push("/"); 
     }
   }, [user]);
 

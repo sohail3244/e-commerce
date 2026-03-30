@@ -1,43 +1,63 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { User, ChevronDown, Menu, LogOut, Settings, UserCircle } from "lucide-react";
+import {
+  User,
+  ChevronDown,
+  Menu,
+  LogOut,
+  Settings,
+  UserCircle,
+} from "lucide-react";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
+import { logout } from "@/store/slices/authSlice";
+import { useLogout } from "@/lib/mutations/useLogout";
 
 export default function DashboardNavbar({ toggleSidebar }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { mutate: logoutApi } = useLogout();
 
   useEffect(() => {
-    // 1. Bahar click karne par band karne ka logic
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
     };
 
-    // 2. Scroll karne par band karne ka logic
     const handleScroll = () => {
       if (isDropdownOpen) {
         setIsDropdownOpen(false);
       }
     };
 
-    // Event listeners add karein
     document.addEventListener("mousedown", handleClickOutside);
     window.addEventListener("scroll", handleScroll, true); // 'true' capture phase ke liye taaki inner scroll bhi detect ho
 
     return () => {
-      // Clean up listeners
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("scroll", handleScroll, true);
     };
-  }, [isDropdownOpen]); // isDropdownOpen dependency zaroori hai handleScroll logic ke liye
+  }, [isDropdownOpen]);
+
+  const handleLogout = () => {
+    logoutApi(); 
+
+    dispatch(logout()); 
+
+    setIsDropdownOpen(false); 
+
+    router.push("/"); 
+  };
 
   return (
     <header className="h-16 bg-white border-b border-[#e0e0e0] flex items-center justify-between md:justify-end px-6 sticky top-0 z-30">
       {/* Mobile Menu Trigger */}
-      <button 
-        onClick={toggleSidebar} 
+      <button
+        onClick={toggleSidebar}
         className="md:hidden p-2 text-[#2A4150] hover:bg-slate-100 rounded-lg"
       >
         <Menu size={24} />
@@ -45,7 +65,7 @@ export default function DashboardNavbar({ toggleSidebar }) {
 
       <div className="flex items-center gap-5 relative" ref={dropdownRef}>
         {/* Profile Button */}
-        <button 
+        <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="flex items-center gap-3 group focus:outline-none"
         >
@@ -55,15 +75,18 @@ export default function DashboardNavbar({ toggleSidebar }) {
               Superuser
             </span>
           </div>
-          
-          <div className={`p-1 border-2 rounded-full transition-colors ${
-            isDropdownOpen ? "border-[#2A4150]" : "border-[#e0e0e0] group-hover:border-[#2A4150]"
-          }`}>
+
+          <div
+            className={`p-1 border-2 rounded-full transition-colors ${
+              isDropdownOpen
+                ? "border-[#2A4150]"
+                : "border-[#e0e0e0] group-hover:border-[#2A4150]"
+            }`}
+          >
             <div className="h-8 w-8 bg-[#2A4150] rounded-full flex items-center justify-center text-white">
               <User size={18} />
             </div>
           </div>
-          
         </button>
 
         {/* --- DROPDOWN MENU --- */}
@@ -78,7 +101,7 @@ export default function DashboardNavbar({ toggleSidebar }) {
               <UserCircle size={16} />
               My Profile
             </button>
-            
+
             <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-[#2A4150] transition-colors">
               <Settings size={16} />
               Settings
@@ -86,9 +109,9 @@ export default function DashboardNavbar({ toggleSidebar }) {
 
             <div className="h-px bg-slate-100 my-1" />
 
-            <button 
+            <button
               className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-              onClick={() => console.log("Logging out...")}
+              onClick={handleLogout}
             >
               <LogOut size={16} />
               Logout

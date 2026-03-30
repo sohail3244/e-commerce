@@ -8,7 +8,6 @@ export default function AuthGuard({ children }) {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
-  // ✅ prevent multiple dispatch
   const hasOpened = useRef(false);
 
   useEffect(() => {
@@ -18,7 +17,6 @@ export default function AuthGuard({ children }) {
     }
   }, [isAuthenticated, dispatch]);
 
-  // ❌ login nahi hai → page hide
   if (!isAuthenticated) return null;
 
   return children;

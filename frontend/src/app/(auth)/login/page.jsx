@@ -15,7 +15,7 @@ export default function Login({ title, onSuccess, isModal = false }) {
   const { mutate, isLoading } = useLogin();
   const dispatch = useDispatch();
   const router = useRouter();
-  
+
   const [error, setError] = useState("");
   const [form, setForm] = useState({ email: "", password: "" });
 
@@ -30,11 +30,13 @@ export default function Login({ title, onSuccess, isModal = false }) {
       onSuccess: (res) => {
         const user = res?.data?.data?.user;
         dispatch(setUser(user));
+        localStorage.setItem("user", JSON.stringify(user));
         toast.success("Login Successful!");
         if (onSuccess) onSuccess();
-        if (user?.role?.toLowerCase() === "admin") {
+        dispatch(closeLogin());
+        if (user?.role?.toLowerCase?.() === "admin") {
           router.push("/dashboard");
-        } else if (!isModal) {
+        } else {
           router.push("/");
         }
       },
