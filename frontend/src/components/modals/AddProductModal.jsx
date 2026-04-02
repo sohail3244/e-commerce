@@ -3,7 +3,7 @@
 import { X } from "lucide-react";
 import AddProductForm from "../forms/AddProductForm";
 
-export default function AddProductModal({ open, onClose }) {
+export default function AddProductModal({ open, onClose, onSubmit, editData }) {
   if (!open) return null;
 
   return (
@@ -17,7 +17,7 @@ export default function AddProductModal({ open, onClose }) {
         
         <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-[#2A4150] z-10">
           <div>
-            <h2 className="text-xl font-bold text-white">Add Product</h2>
+            <h2 className="text-xl font-bold text-white">{editData ? "Edit Product" : "Add Product"}</h2>
             <p className="text-xs text-slate-300 mt-0.5">Fill in the details to list a new item</p>
           </div>
           <button 
@@ -35,6 +35,8 @@ export default function AddProductModal({ open, onClose }) {
             submitText="Publish Product"
             onSuccess={onClose}
             onCancel={onClose}
+            onSubmit={onSubmit}
+            editData={editData}
           />
         </div>
       </div>

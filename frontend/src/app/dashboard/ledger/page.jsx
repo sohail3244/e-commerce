@@ -41,7 +41,7 @@ export default function Ledger() {
       </header>
 
       {/* Stats Grid - Mobile/Tablet par 1, Laptop par 2 cards */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 max-w-5xl">
+      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 w-full max-w-400">
         <StatCard 
           title="Total Revenue" 
           value="₹0.00" 

@@ -42,7 +42,7 @@ export default function ProfilePage() {
         
         {/* --- TOP NAVBAR --- */}
         <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="w-full  mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.back()}
@@ -59,7 +59,7 @@ export default function ProfilePage() {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-6 py-10">
+        <main className="w-full mx-auto px-6 py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
             {/* --- LEFT SIDEBAR (Sticky) --- */}
@@ -73,9 +73,7 @@ export default function ProfilePage() {
                         {getInitials(form.name)}
                       </div>
                     </div>
-                    <button className="absolute bottom-1 -right-1 p-2 bg-[#F8FAFC] rounded-xl shadow-md text-[#2A4150] border border-white hover:bg-white transition-all scale-90 group-hover:scale-100">
-                      <Camera size={14} />
-                    </button>
+                    
                   </div>
 
                   <div className="mt-4">

@@ -3,11 +3,22 @@
 import { useForm } from "react-hook-form";
 import InputField from "../ui/InputField";
 import Button from "../ui/Button";
-import { User, Mail, Lock, Phone, MapPin, Calendar, CheckCircle } from "lucide-react";
+import {
+  User,
+  Mail,
+  Lock,
+  Phone,
+  MapPin,
+  Calendar,
+  CheckCircle,
+} from "lucide-react";
+import { useEffect } from "react";
 
 export default function AddCustomerForm({
+  defaultValues,
   title = "",
   submitText = "Add Customer",
+  onSubmit,
   onSuccess,
   onCancel,
 }) {
@@ -18,23 +29,41 @@ export default function AddCustomerForm({
     reset,
   } = useForm({
     defaultValues: {
-      status: "active",
+      status: "Active",
       joinDate: new Date().toISOString().split("T")[0],
     },
   });
 
-  const onSubmit = (data) => {
-    console.log("Customer Data:", data);
-    onSuccess?.();
-    reset();
-  };
+ const handleFormSubmit = (data) => {
+  if (!data.password) {
+    delete data.password; // 👈 empty password remove
+  }
+
+  onSubmit?.(data);
+  onSuccess?.();
+  reset();
+};
+
+useEffect(() => {
+  if (defaultValues) {
+    reset({
+      name: defaultValues.name,
+      email: defaultValues.email,
+      phone: defaultValues.phone,
+      location: defaultValues.location,
+      status: defaultValues.status,
+      joinDate: defaultValues.joinDate?.split("T")[0],
+    });
+  }
+}, [defaultValues, reset]);
 
   return (
     <div className="w-full">
-      {title && <h2 className="text-xl font-bold text-slate-800 mb-6">{title}</h2>}
+      {title && (
+        <h2 className="text-xl font-bold text-slate-800 mb-6">{title}</h2>
+      )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
         {/* Personal Details Group */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <InputField
@@ -61,7 +90,7 @@ export default function AddCustomerForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <InputField
             label="Phone Number"
-            placeholder="+91 8696258578"
+            placeholder="9876543210"
             icon={Phone}
             isRequired
             error={errors.phone?.message}
@@ -75,7 +104,17 @@ export default function AddCustomerForm({
             icon={Lock}
             isRequired
             error={errors.password?.message}
-            {...register("password", { required: "Password is required" })}
+            {...register("password", {
+              required: "Password is required",
+              minLength: {
+                value: 8,
+                message: "Minimum 8 characters required",
+              },
+              pattern: {
+                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/,
+                message: "Must include uppercase, lowercase, number & symbol",
+              },
+            })}
           />
         </div>
 
@@ -98,8 +137,8 @@ export default function AddCustomerForm({
               {...register("status")}
               className="w-full h-11.25 bg-white border border-slate-200 rounded-xl px-4 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all cursor-pointer"
             >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
             </select>
           </div>
 
@@ -124,9 +163,9 @@ export default function AddCustomerForm({
             onClick={onCancel || (() => reset())}
             className="px-6 border-none text-slate-500 hover:bg-slate-100"
           />
-          <Button 
-            type="submit" 
-            text={submitText} 
+          <Button
+            type="submit"
+            text={submitText}
             className="px-8 bg-[#2A4150] hover:bg-[#1a2b36] text-white shadow-xl shadow-blue-900/10"
           />
         </div>

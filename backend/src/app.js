@@ -7,18 +7,18 @@ const data = "10mb";
 
 app.use(
   cors({
-    origin: true,
+    origin: [
+      "http://localhost:3000",
+      "https://d9vxjqxn-3000.inc1.devtunnels.ms", 
+    ],
     credentials: true,
-  }),
+  })
 );
-
+app.options("*", cors());
 app.use(express.json({ limit: data }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // app.use("/uploads", express.static("public/uploads")); // local
-app.use(
-  "/uploads",
-  express.static(process.env.UPLOAD_DIR || "public/uploads")
-);
+app.use("/uploads", express.static("public/uploads"));
 app.use(cookieParser());
 
 import userRouter from "./routes/user.routes.js";

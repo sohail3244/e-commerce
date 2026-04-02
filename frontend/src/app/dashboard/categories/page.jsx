@@ -1,17 +1,87 @@
-'use client';
+"use client";
 
-import AddCategoryModal from '@/components/modals/AddCategoryModal';
-import CategoriesTable from '@/components/table/CategoriesTable'
-import Button from '@/components/ui/Button'
-import { Plus } from 'lucide-react'
-import React, { useState } from 'react'
+import AddCategoryModal from "@/components/modals/AddCategoryModal";
+import CategoriesTable from "@/components/table/CategoriesTable";
+import Button from "@/components/ui/Button";
+import {
+  useCreateCategory,
+  useDeleteCategory,
+  useUpdateCategory,
+} from "@/lib/mutations/useCategory";
+import { useCategories } from "@/lib/queries/useCategories";
+import { Plus } from "lucide-react";
+import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function Categories() {
   const [open, setOpen] = useState(false);
+  const { data: categoriesData = [], isLoading } = useCategories();
+  const createCategory = useCreateCategory();
+  const updateCategory = useUpdateCategory();
+  const deleteCategory = useDeleteCategory();
+
+  const handleAddCategory = (data) => {
+    createCategory.mutate(data, {
+      onSuccess: () => {
+        toast.success("Category created successfully ");
+        setOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.message || "Create failed ");
+      },
+    });
+  };
+
+  const handleDeleteCategory = (id) => {
+    deleteCategory.mutate(id, {
+      onSuccess: () => {
+        toast.success("Category deleted ");
+      },
+      onError: (error) => {
+        toast.error(error?.response?.data?.message || "Delete failed ");
+      },
+    });
+  };
+
+  const [editData, setEditData] = useState(null);
+
+  const handleEditCategory = (row) => {
+    setEditData(row);
+    setOpen(true);
+  };
+
+  if (isLoading) {
+    return <div className="p-6">Loading categories...</div>;
+  }
+
+  const formattedData = categoriesData.map((item) => ({
+    id: item.id,
+    image: item.image
+      ? `http://localhost:8000${item.image}`
+      : "https://via.placeholder.com/40",
+    name: item.name,
+    sku: item.sku,
+    description: item.description,
+  }));
+
+  const handleUpdateCategory = (data) => {
+    updateCategory.mutate(
+      { id: editData.id, data },
+      {
+        onSuccess: () => {
+          toast.success("Category updated successfully ");
+          setOpen(false);
+          setEditData(null);
+        },
+        onError: (error) => {
+          toast.error(error?.response?.data?.message || "Update failed ");
+        },
+      },
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 w-full bg-white min-h-screen">
-      
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#2A4150]">
@@ -21,11 +91,11 @@ export default function Categories() {
             Manage your product categories and organization.
           </p>
         </div>
-        
+
         <div className="w-full sm:w-auto">
-          <Button 
-            text="Add Category" 
-            icon={<Plus size={18} />} 
+          <Button
+            text="Add Category"
+            icon={<Plus size={18} />}
             className="w-full sm:w-auto flex justify-center items-center gap-2"
             onClick={() => setOpen(true)}
           />
@@ -35,16 +105,24 @@ export default function Categories() {
       <section className="mt-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto w-full scrollbar-hide">
           <div className="inline-block min-w-full align-middle">
-            <CategoriesTable />
+            <CategoriesTable
+              data={formattedData}
+              onEdit={handleEditCategory}
+              onDelete={handleDeleteCategory}
+            />
           </div>
         </div>
       </section>
 
       <AddCategoryModal
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          setOpen(false);
+          setEditData(null);
+        }}
+        onSubmit={editData ? handleUpdateCategory : handleAddCategory}
+        defaultValues={editData}
       />
-      
     </div>
-  )
+  );
 }

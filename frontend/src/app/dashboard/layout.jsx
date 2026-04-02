@@ -23,7 +23,7 @@ export default function DashboardLayout({ children }) {
 
         {/* Page Content */}
         <main className="w-full overflow-y-auto scrollbar-hide">
-          <div className="max-w-7xl mx-auto">
+          <div className="">
             {children}
           </div>
         </main>

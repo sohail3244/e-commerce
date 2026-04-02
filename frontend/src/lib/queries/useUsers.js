@@ -11,3 +11,13 @@ export const useMe = () => {
     retry: false,
   });
 };
+
+export const useUsers = () => {
+  return useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const res = await api.get("/user/get-users");
+      return res.data.data;
+    },
+  });
+};

@@ -3,7 +3,12 @@
 import { X } from "lucide-react";
 import AddCategoryForm from "../forms/AddCategoryForm";
 
-export default function AddCategoryModal({ open, onClose }) {
+export default function AddCategoryModal({
+  open,
+  onClose,
+  onSubmit,
+  defaultValues,
+}) {
   if (!open) return null;
 
   return (
@@ -32,7 +37,12 @@ export default function AddCategoryModal({ open, onClose }) {
 
         {/* Form Content */}
         <div className="p-8">
-          <AddCategoryForm submitText="Create Category" onCancel={onClose} />
+          <AddCategoryForm
+            submitText="Create Category"
+            onSubmit={onSubmit}
+            defaultValues={defaultValues}
+            onCancel={onClose}
+          />
         </div>
       </div>
     </div>

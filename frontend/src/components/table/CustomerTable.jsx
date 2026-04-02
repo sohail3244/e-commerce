@@ -2,93 +2,14 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { TableShell, TableHead, TableBody, TablePagination } from "./core";
+import { useRouter } from "next/navigation";
 
-// 👇 Dummy Data (replace with API later)
-const customerData = [
-  {
-    id: 1,
-    customer: "Rahul Sharma",
-    contact: "9876543210",
-    status: "Active",
-    joinDate: "2024-02-12",
-  },
-  {
-    id: 2,
-    customer: "Amit Verma",
-    contact: "9123456780",
-    status: "Inactive",
-    joinDate: "2024-01-05",
-  },
-  {
-    id: 3,
-    customer: "Sneha Singh",
-    contact: "9988776655",
-    status: "Active",
-    joinDate: "2024-03-01",
-  },
-  {
-    id: 3,
-    customer: "Sneha Singh",
-    contact: "9988776655",
-    status: "Active",
-    joinDate: "2024-03-01",
-  },
-  {
-    id: 3,
-    customer: "Sneha Singh",
-    contact: "9988776655",
-    status: "Active",
-    joinDate: "2024-03-01",
-  },
-  {
-    id: 3,
-    customer: "Sneha Singh",
-    contact: "9988776655",
-    status: "Active",
-    joinDate: "2024-03-01",
-  },
-  {
-    id: 3,
-    customer: "Sneha Singh",
-    contact: "9988776655",
-    status: "Active",
-    joinDate: "2024-03-01",
-  },
-  {
-    id: 3,
-    customer: "Sneha Singh",
-    contact: "9988776655",
-    status: "Active",
-    joinDate: "2024-03-01",
-  },
-  {
-    id: 3,
-    customer: "Sneha Singh",
-    contact: "9988776655",
-    status: "Active",
-    joinDate: "2024-03-01",
-  },
-  {
-    id: 3,
-    customer: "Sneha Singh",
-    contact: "9988776655",
-    status: "Active",
-    joinDate: "2024-03-01",
-  },
-  {
-    id: 3,
-    customer: "Sneha Singh",
-    contact: "9988776655",
-    status: "Active",
-    joinDate: "2024-03-01",
-  },
-];
-
-export default function CustomerTable() {
+export default function CustomerTable({ data = [], onEdit, onDelete }) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
   const [date, setDate] = useState("");
+  const router = useRouter();
 
   const itemsPerPage = 10;
 
@@ -117,7 +38,7 @@ export default function CustomerTable() {
   ];
 
   const filteredData = useMemo(() => {
-    return customerData.filter((item) => {
+    return data.filter((item) => {
       const matchesSearch =
         item.customer?.toLowerCase().includes(search.toLowerCase()) ||
         item.contact?.toLowerCase().includes(search.toLowerCase());
@@ -128,7 +49,7 @@ export default function CustomerTable() {
 
       return matchesSearch && matchesStatus && matchesDate;
     });
-  }, [search, status, date]);
+  }, [data, search, status, date]);
 
   useEffect(() => {
     setPage(1);
@@ -186,15 +107,15 @@ export default function CustomerTable() {
         actions={[
           {
             label: "View",
-            onClick: (row) => console.log("View", row),
+            onClick: (row) => router.push(`/dashboard/customers/${row.id}`),
           },
           {
             label: "Edit",
-            onClick: (row) => console.log("Edit", row),
+            onClick: (row) => onEdit?.(row),
           },
           {
             label: "Delete",
-            onClick: (row) => console.log("Delete", row),
+            onClick: (row) => onDelete?.(row.id),
           },
         ]}
       />

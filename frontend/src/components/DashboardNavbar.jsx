@@ -12,7 +12,7 @@ import {
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { logout } from "@/store/slices/authSlice";
-import { useLogout } from "@/lib/mutations/useLogout";
+import { useLogout } from "@/lib/mutations/useAuth";
 
 export default function DashboardNavbar({ toggleSidebar }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

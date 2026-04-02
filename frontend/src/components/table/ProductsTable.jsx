@@ -7,42 +7,31 @@ import {
   TableBody,
   TablePagination,
 } from "@/components/table/core";
+import { useDeleteProduct } from "@/lib/mutations/useProducts";
 
-// 👇 Dummy Data (replace with API later)
-const productsData = [
-  {
-    id: 1,
-    product: "iPhone 14",
-    category: "Electronics",
-    price: 79999,
-    stock: 12,
-    status: "Active",
-  },
-  {
-    id: 2,
-    product: "Nike Shoes",
-    category: "Footwear",
-    price: 4999,
-    stock: 0,
-    status: "Out of Stock",
-  },
-  {
-    id: 3,
-    product: "Office Chair",
-    category: "Furniture",
-    price: 8999,
-    stock: 5,
-    status: "Active",
-  },
-];
-
-export default function ProductsTable() {
+export default function ProductsTable({
+  data = [],
+  isLoading,
+  onEdit,
+  onView,
+}) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
   const itemsPerPage = 10;
+  const { mutate: deleteProduct } = useDeleteProduct();
 
-  // ✅ Columns
+  const productsData = useMemo(() => {
+    return data.map((item) => ({
+      id: item.id,
+      product: item.name,
+      category: item.category?.name || "N/A",
+      price: item.price,
+      stock: item.stock,
+      status: item.stock === 0 ? "Out of Stock" : item.status,
+    }));
+  }, [data]);
+
   const columns = [
     { label: "Product", accessor: "product" },
     { label: "Category", accessor: "category" },
@@ -81,7 +70,6 @@ export default function ProductsTable() {
     },
   ];
 
-  // ✅ FILTER LOGIC
   const filteredData = useMemo(() => {
     return productsData.filter((item) => {
       const matchesSearch =
@@ -92,12 +80,11 @@ export default function ProductsTable() {
 
       return matchesSearch && matchesStatus;
     });
-  }, [search, status]);
+  }, [search, status, productsData]);
 
-  // ✅ AUTO PAGE RESET
   useEffect(() => {
     setPage(1);
-  }, [search, status]);
+  }, [search, status, productsData]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
@@ -106,7 +93,6 @@ export default function ProductsTable() {
     return filteredData.slice(start, start + itemsPerPage);
   }, [filteredData, page]);
 
-  // ✅ RESET
   const handleReset = () => {
     setSearch("");
     setStatus("All");
@@ -122,7 +108,6 @@ export default function ProductsTable() {
         />
       }
     >
-      {/* 🔍 Head */}
       <TableHead
         columns={columns}
         onReset={handleReset}
@@ -143,22 +128,25 @@ export default function ProductsTable() {
         dateProps={{}} // not needed
       />
 
-      {/* 📊 Body */}
       <TableBody
         data={paginatedData}
         columns={columns}
         actions={[
           {
             label: "View",
-            onClick: (row) => console.log("View", row),
+            onClick: (row) => onView?.(row),
           },
           {
             label: "Edit",
-            onClick: (row) => console.log("Edit", row),
+            onClick: (row) => onEdit?.(row),
           },
           {
             label: "Delete",
-            onClick: (row) => console.log("Delete", row),
+            onClick: (row) => {
+              if (confirm("Delete this product?")) {
+                deleteProduct(row.id);
+              }
+            },
           },
         ]}
       />

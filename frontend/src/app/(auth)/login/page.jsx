@@ -8,8 +8,8 @@ import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { closeLogin, setUser } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
-import { useLogin } from "@/lib/mutations/useLogin";
 import { useRouter } from "next/navigation";
+import { useLogin } from "@/lib/mutations/useAuth";
 
 export default function Login({ title, onSuccess, isModal = false }) {
   const { mutate, isLoading } = useLogin();

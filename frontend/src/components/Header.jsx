@@ -10,25 +10,13 @@ import SearchField from "./ui/SearchField";
 import LoginModal from "./modals/LoginModal";
 import Button from "./ui/Button";
 import { closeLogin, logout, openLogin } from "@/store/slices/authSlice";
-
-const CATEGORIES = [
-  "HOME",
-  "FACE",
-  "HAIR",
-  "MAKEUP",
-  "BODY",
-  "BABY",
-  "COMBOS",
-  "NEW LAUNCHES",
-  "INGREDIENT",
-  "BLOG",
-];
+import { useCategories } from "@/lib/queries/useCategories";
 
 export default function Header() {
   const router = useRouter();
   const dispatch = useDispatch();
   const menuRef = useRef(null);
-
+  const { data: categories = [], isLoading } = useCategories();
   const [openMenu, setOpenMenu] = useState(false);
 
   const { user, isAuthenticated, openLoginModal } = useSelector(
@@ -65,7 +53,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-[#e0e0e0] bg-white/95 backdrop-blur-md shadow-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-[#e0e0e0] bg-white/95 backdrop-blur-md shadow-sm ">
         <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-10">
           <div className="flex h-16 items-center justify-between md:h-20">
             {/* Logo */}
@@ -134,9 +122,14 @@ export default function Header() {
         <nav className="border-t border-slate-50 bg-white">
           <div className="mx-auto max-w-7xl px-4">
             <ul className="no-scrollbar flex items-center gap-6 overflow-x-auto py-3 scroll-smooth whitespace-nowrap md:justify-between">
-              {CATEGORIES.map((cat) => (
-                <li key={cat} className="shrink-0">
-                  <NavLink item={cat} />
+              {/* HOME */}
+              <li key="home" className="shrink-0">
+                <NavLink item="HOME" />
+              </li>
+
+              {categories.map((cat) => (
+                <li key={cat.id} className="shrink-0 uppercase">
+                  <NavLink item={cat.name} />
                 </li>
               ))}
             </ul>

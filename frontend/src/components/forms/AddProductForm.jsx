@@ -5,38 +5,60 @@ import InputField from "../ui/InputField";
 import TextAreaField from "../ui/TextAreaField";
 import Button from "../ui/Button";
 import { Upload, Package, Layers, Info } from "lucide-react";
+import { useEffect } from "react";
+import { useCategories } from "@/lib/queries/useCategories";
 
 export default function AddProductForm({
   title = "",
   submitText = "Add Product",
+  onSubmit,
   onSuccess,
-  onCancel
+  onCancel,
+  editData,
 }) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset,
   } = useForm();
 
-  const onSubmit = (data) => {
-    // ... logic remains same ...
-    onSuccess?.();
+  const { data: categories = [], isLoading } = useCategories();
+
+  const handleFormSubmit = (data) => {
+    onSubmit?.(data);
     reset();
   };
 
+  useEffect(() => {
+    register("images");
+  }, [register]);
+
+  useEffect(() => {
+  if (editData) {
+    setValue("name", editData.name);
+    setValue("description", editData.description);
+    setValue("price", editData.price);
+    setValue("stock", editData.stock);
+    setValue("status", editData.status);
+    setValue("categoryid", editData.categoryid);
+  }
+}, [editData]);
+
   return (
     <div className="w-full">
-      {title && <h2 className="text-xl font-bold text-slate-800 mb-6">{title}</h2>}
+      {title && (
+        <h2 className="text-xl font-bold text-slate-800 mb-6">{title}</h2>
+      )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
         {/* Section 1: Basic Info */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-[#2A4150] font-semibold border-b border-slate-100 pb-2">
             <Info size={18} /> <span>Basic Information</span>
           </div>
-          
+
           <InputField
             label="Product Name"
             placeholder="e.g. MacBook Air M2"
@@ -50,7 +72,9 @@ export default function AddProductForm({
             placeholder="Describe the key features and specifications..."
             isRequired
             error={errors.description?.message}
-            {...register("description", { required: "Description is required" })}
+            {...register("description", {
+              required: "Description is required",
+            })}
           />
         </div>
 
@@ -59,7 +83,7 @@ export default function AddProductForm({
           <div className="flex items-center gap-2 text-[#2A4150] font-semibold border-b border-slate-100 pb-2">
             <Package size={18} /> <span>Pricing & Inventory</span>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               label="Price (₹)"
@@ -88,26 +112,40 @@ export default function AddProductForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-slate-700">Category *</label>
+              <label className="text-sm font-semibold text-slate-700">
+                Category *
+              </label>
               <select
-                {...register("category", { required: "Category is required" })}
+                {...register("categoryid", {
+                  required: "Category is required",
+                })}
                 className="w-full h-11.25 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
               >
                 <option value="">Select Category</option>
-                <option value="electronics">Electronics</option>
-                <option value="fashion">Fashion</option>
+
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
               </select>
-              {errors.category && <p className="text-red-500 text-[11px] mt-1">{errors.category.message}</p>}
+              {errors.categoryid && (
+                <p className="text-red-500 text-[11px] mt-1">
+                  {errors.categoryid.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-slate-700">Status *</label>
+              <label className="text-sm font-semibold text-slate-700">
+                Status *
+              </label>
               <select
                 {...register("status", { required: true })}
                 className="w-full h-11.25 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
               >
-                <option value="active">Active (Visible)</option>
-                <option value="inactive">Inactive (Draft)</option>
+                <option value="Active">Active (Visible)</option>
+                <option value="Inactive">Inactive (Draft)</option>
               </select>
             </div>
           </div>
@@ -123,15 +161,22 @@ export default function AddProductForm({
               type="file"
               multiple
               accept="image/*"
-              {...register("images")}
+              onChange={(e) => {
+                const files = Array.from(e.target.files);
+                setValue("images", files, { shouldValidate: true });
+              }}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
             <div className="text-center pointer-events-none">
               <div className="mx-auto w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3 text-slate-400 group-hover:text-blue-500 transition-colors">
                 <Upload size={24} />
               </div>
-              <p className="text-sm text-slate-600 font-medium">Click to upload or drag multiple images</p>
-              <p className="text-xs text-slate-400 mt-1">PNG, JPG, GIF (Max 5MB per file)</p>
+              <p className="text-sm text-slate-600 font-medium">
+                Click to upload or drag multiple images
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                PNG, JPG, GIF (Max 5MB per file)
+              </p>
             </div>
           </div>
         </div>
@@ -145,10 +190,10 @@ export default function AddProductForm({
             onClick={onCancel || (() => reset())}
             className="px-6 border-none text-slate-500 hover:bg-slate-100"
           />
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             text={submitText}
-            className="px-10 bg-[#2A4150] hover:bg-[#1a2b36] text-white shadow-xl shadow-blue-900/10" 
+            className="px-10 bg-[#2A4150] hover:bg-[#1a2b36] text-white shadow-xl shadow-blue-900/10"
           />
         </div>
       </form>

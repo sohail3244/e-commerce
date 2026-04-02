@@ -7,8 +7,8 @@ import Button from "@/components/ui/Button";
 import AddressForm from "@/components/forms/AddressForm";
 import { User, Mail, Phone, UserCircle, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useSignup } from "@/lib/mutations/useSignup";
 import { toast } from "react-hot-toast";
+import { useSignup } from "@/lib/mutations/useAuth";
 
 export default function SignUp({ mobile }) {
   const router = useRouter();

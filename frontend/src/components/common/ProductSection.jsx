@@ -11,19 +11,44 @@ export default function ProductSection({
   description,
   products = [],
   category,
-  subCategory,
+  isBestSeller,
 }) {
   const scrollRef = useRef();
 
-  // Filter logic
   const filteredProducts = products.filter((p) => {
-    if (subCategory)
-      return p.subCategory?.toLowerCase() === subCategory.toLowerCase();
-    if (category) return p.category?.toLowerCase() === category.toLowerCase();
+    if (isBestSeller) return true; // sab products allow
+
+    if (category)
+      return p.category?.name?.toLowerCase() === category.toLowerCase();
+
     return true;
   });
 
-  if (!filteredProducts.length) return null;
+  let finalProducts = filteredProducts;
+
+  if (isBestSeller) {
+    const grouped = {};
+
+    filteredProducts.forEach((p) => {
+      const cat = p.category?.name || "other";
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(p);
+    });
+
+    finalProducts = [];
+    let added = true;
+
+    while (added) {
+      added = false;
+
+      for (const cat in grouped) {
+        if (grouped[cat].length) {
+          finalProducts.push(grouped[cat].shift());
+          added = true;
+        }
+      }
+    }
+  }
 
   // Scroll functions
   const scrollLeft = () => {
@@ -76,12 +101,24 @@ export default function ProductSection({
           ref={scrollRef}
           className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto scroll-smooth scrollbar-hide px-2 md:px-0 snap-x snap-mandatory"
         >
-          {filteredProducts.map((product) => (
+          {finalProducts.map((product) => (
             <div
               key={product.id}
               className=" sm:min-w-[48%] md:min-w-70 lg:min-w-75 snap-start first:ml-1 last:mr-1"
             >
-              <ProductCard {...product} />
+              <ProductCard
+                id={product.id}
+                image={
+                  product.images?.[0]?.url
+                    ? `${process.env.NEXT_PUBLIC_API_BASE_IMAGE_URL}${product.images[0].url}`
+                    : "/placeholder.png"
+                }
+                title={product.name} // 🔥 THIS IS THE FIX
+                description={product.description}
+                price={product.price}
+                rating={4.5}
+                reviews={10}
+              />
             </div>
           ))}
         </div>

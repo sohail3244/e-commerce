@@ -71,7 +71,15 @@ export default function ProductCard({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                dispatch(addToCart({ id, image, title, price }));
+                dispatch(
+                  addToCart({
+                    id,
+                    name: title, 
+                    image,
+                    price,
+                    description, 
+                  }),
+                );
               }}
             />
           ) : (

@@ -1,44 +1,13 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import {
-  TableShell,
-  TableHead,
-  TableBody,
-  TablePagination,
-} from "./core";
+import { TableShell, TableHead, TableBody, TablePagination } from "./core";
 
-// 👇 Dummy Data (replace with API later)
-const categoriesData = [
-  {
-    id: 1,
-    image: "https://via.placeholder.com/40",
-    name: "Electronics",
-    sku: "CAT-001",
-    description: "Devices and gadgets",
-  },
-  {
-    id: 2,
-    image: "https://via.placeholder.com/40",
-    name: "Clothing",
-    sku: "CAT-002",
-    description: "Men & Women apparel",
-  },
-  {
-    id: 3,
-    image: "https://via.placeholder.com/40",
-    name: "Furniture",
-    sku: "CAT-003",
-    description: "Home & office furniture",
-  },
-];
-
-export default function CategoriesTable() {
+export default function CategoriesTable({ data = [], onEdit, onDelete }) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const itemsPerPage = 10;
 
-  // ✅ Columns
   const columns = [
     {
       label: "Image",
@@ -57,19 +26,16 @@ export default function CategoriesTable() {
       label: "Description",
       accessor: "description",
       render: (value) => (
-        <span className="text-slate-500 text-sm line-clamp-1">
-          {value}
-        </span>
+        <span className="text-slate-500 text-sm line-clamp-1">{value}</span>
       ),
     },
   ];
 
-  // ✅ FILTER (Search only)
   const filteredData = useMemo(() => {
-    return categoriesData.filter((item) =>
-      item.name?.toLowerCase().includes(search.toLowerCase())
+    return data.filter((item) =>
+      item.name?.toLowerCase().includes(search.toLowerCase()),
     );
-  }, [search]);
+  }, [search, data]);
 
   // ✅ AUTO PAGE RESET
   useEffect(() => {
@@ -105,7 +71,6 @@ export default function CategoriesTable() {
         showFilter={false}
         showDate={false}
         showReset={false}
-      
       />
 
       {/* 📊 Body */}
@@ -115,11 +80,11 @@ export default function CategoriesTable() {
         actions={[
           {
             label: "Edit",
-            onClick: (row) => console.log("Edit", row),
+            onClick: (row) => onEdit(row),
           },
           {
             label: "Delete",
-            onClick: (row) => console.log("Delete", row),
+            onClick: (row) => onDelete(row.id),
           },
         ]}
       />

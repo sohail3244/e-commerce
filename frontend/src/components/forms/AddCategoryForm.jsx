@@ -5,28 +5,37 @@ import { Tag, FileText, Upload } from "lucide-react"; // Upload icon added
 import Button from "../ui/Button";
 import TextAreaField from "../ui/TextAreaField";
 import InputField from "../ui/InputField";
+import { useEffect } from "react";
 
 export default function AddCategoryForm({
-  title = "", 
+  title = "",
   submitText = "Save Category",
   defaultValues = {},
-  onCancel, // Added for flexibility
+  onSubmit,
+  onCancel,
 }) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset,
   } = useForm({ defaultValues });
 
-  const onSubmit = (data) => {
-    const formData = new FormData();
-    formData.append("categoryName", data.categoryName);
-    formData.append("sku", data.sku);
-    formData.append("description", data.description);
-    if (data.image?.[0]) formData.append("image", data.image[0]);
-    console.log("FormData Ready:", formData);
+  const handleFormSubmit = (data) => {
+    onSubmit?.(data);
+    reset();
   };
+
+  useEffect(() => {
+    if (defaultValues) {
+      reset(defaultValues);
+    }
+  }, [defaultValues, reset]);
+
+  useEffect(() => {
+  register("image");
+}, [register]);
 
   return (
     <div className="w-full">
@@ -34,7 +43,7 @@ export default function AddCategoryForm({
         <h2 className="text-xl font-bold text-slate-800 mb-6">{title}</h2>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField
             label="Category Name"
@@ -42,7 +51,7 @@ export default function AddCategoryForm({
             icon={Tag}
             isRequired
             error={errors.categoryName?.message}
-            {...register("categoryName", { required: "Name is required" })}
+            {...register("name", { required: "Name is required" })}
           />
 
           <InputField
@@ -69,13 +78,20 @@ export default function AddCategoryForm({
           </label>
           <div className="relative border-2 border-dashed border-slate-200 hover:border-blue-400 transition-colors rounded-xl p-4 bg-slate-50/50">
             <input
-              type="file"
-              accept="image/*"
-              {...register("image")}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setValue("image", file, { shouldValidate: true });
+    }
+  }}
+  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+/>
             <div className="text-center pointer-events-none">
-              <p className="text-sm text-slate-600 font-medium">Click to upload or drag and drop</p>
+              <p className="text-sm text-slate-600 font-medium">
+                Click to upload or drag and drop
+              </p>
               <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 5MB</p>
             </div>
           </div>

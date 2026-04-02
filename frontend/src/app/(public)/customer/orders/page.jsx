@@ -15,185 +15,288 @@ import {
   Settings,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
+import AuthGuard from "@/components/common/AuthGuard";
+import { useGetOrders } from "@/lib/queries/useOrders";
+import { useDeleteOrder } from "@/lib/mutations/useOrders";
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_IMAGE_URL;
 
 export default function OrdersPage() {
   const router = useRouter();
+  const { data, isLoading, isError } = useGetOrders();
+  const orders = data?.orders || data || [];
+  const { mutate: deleteOrder, isLoading: isDeleting } = useDeleteOrder();
 
-  const orders = [
-    {
-      id: "ORD-882190",
-      date: "10 Mar 2024",
-      total: 1200,
-      status: "Delivered",
-      items: [
-        { name: "Face Wash", image: "https://images.unsplash.com/photo-1597354984706-fac992d9306f?q=80&w=688&auto=format&fit=crop" },
-        { name: "Shampoo", image: "https://img.freepik.com/premium-photo/hair-care-products-isolated-white-background_621955-41132.jpg" },
-      ],
-    },
-    {
-      id: "ORD-882191",
-      date: "12 Mar 2024",
-      total: 800,
-      status: "Pending",
-      items: [{ name: "Moisturizer", image: "https://img.freepik.com/premium-photo/hair-care-products-isolated-white-background_621955-41132.jpg" }],
-    },
-  ];
+  const handleCancelOrder = (id) => {
+    if (confirm("Are you sure you want to cancel this order?")) {
+      deleteOrder(id, {
+        onSuccess: () => {
+          alert("Order cancelled successfully");
+        },
+        onError: () => {
+          alert("Failed to cancel order");
+        },
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2A4150] mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading your orders...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-sm">
+          <XCircle size={48} className="text-red-500 mx-auto mb-4" />
+          <p className="text-red-600 font-medium">Failed to load orders</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 text-[#2A4150] underline text-sm"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const getStatusConfig = (status) => {
-    switch (status) {
-      case "Delivered":
+    switch (status?.toLowerCase()) {
+      case "delivered":
         return {
-          style: "text-emerald-600 bg-emerald-50 border-emerald-100",
-          icon: <CheckCircle2 size={12} />,
+          style: "text-emerald-600 bg-emerald-50 border-emerald-200",
+          icon: <CheckCircle2 size={14} />,
+          label: "Delivered",
         };
-      case "Pending":
+      case "pending":
         return {
-          style: "text-amber-600 bg-amber-50 border-amber-100",
-          icon: <Clock size={12} />,
+          style: "text-amber-600 bg-amber-50 border-amber-200",
+          icon: <Clock size={14} />,
+          label: "Pending",
         };
-      case "Cancelled":
+      case "cancelled":
         return {
-          style: "text-red-600 bg-red-50 border-red-100",
-          icon: <XCircle size={12} />,
+          style: "text-red-600 bg-red-50 border-red-200",
+          icon: <XCircle size={14} />,
+          label: "Cancelled",
         };
       default:
         return {
-          style: "text-slate-500 bg-slate-50 border-slate-100",
-          icon: <Package size={12} />,
+          style: "text-slate-600 bg-slate-50 border-slate-200",
+          icon: <Package size={14} />,
+          label: status || "Processing",
         };
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20">
-      {/* --- TOP NAVBAR (Synced with Profile Page) --- */}
-      <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30  px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.back()}
-              className="p-2.5 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 transition-all border border-slate-100"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <div>
-              <h1 className="text-lg font-bold text-slate-900 leading-tight">
-                My Orders
-              </h1>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.15em]">
-                Purchase History
-              </p>
+    <AuthGuard>
+      <div className="min-h-screen bg-[#F8FAFC] pb-20">
+        {/* TOP NAVBAR */}
+        <header className="bg-white/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4 w-full border-b border-slate-100">
+          <div className="w-full mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.back()}
+                className="p-2.5 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 transition-all border border-slate-200"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <div>
+                <h1 className="text-xl font-bold text-slate-900 leading-tight">
+                  My Orders
+                </h1>
+                <p className="text-xs text-slate-500 font-medium">
+                  Track and manage your purchases
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* --- CONTENT AREA --- */}
-      <main className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid gap-8">
-          {orders.map((order) => {
-            const config = getStatusConfig(order.status);
-            return (
-              <div
-                key={order.id}
-                className="group bg-white rounded-[2.5rem] border border-gray-200 shadow-sm hover:shadow-2xl hover:shadow-blue-900/5 transition-all duration-500 overflow-hidden"
+        {/* CONTENT AREA */}
+        <main className="w-full mx-auto px-4 md:px-6 py-8 max-w-7xl">
+          {orders.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <Package size={40} className="text-slate-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-800 mb-2">
+                No Orders Yet
+              </h3>
+              <p className="text-slate-500 mb-6">
+                When you place orders, they'll appear here
+              </p>
+              <button
+                onClick={() => router.push("/")}
+                className="bg-[#2A4150] text-white px-6 py-3 rounded-xl font-medium hover:bg-[#1a2f3a] transition-colors"
               >
-                {/* CARD TOP INFO */}
-                <div className="p-6 md:p-8 flex flex-wrap justify-between items-center bg-[#e0e0e0] border-b border-slate-100">
-                  <div className="flex gap-8">
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                        Date Placed
-                      </p>
-                      <div className="flex items-center gap-2 text-slate-700 font-bold">
-                        <Calendar size={16} className="text-slate-400" />
-                        <span className="text-sm">{order.date}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                        Order ID
-                      </p>
-                      <p className="text-sm text-slate-700 font-bold">
-                        #{order.id}
-                      </p>
-                    </div>
-                  </div>
-
+                Start Shopping
+              </button>
+            </div>
+          ) : (
+            <div className="grid gap-6">
+              {orders.map((order) => {
+                const config = getStatusConfig(order.status);
+                return (
                   <div
-                    className={`flex items-center  gap-2 px-4 py-2 rounded-2xl text-[11px] font-black uppercase tracking-wider border shadow-sm mt-4 sm:mt-0 ${config.style}`}
+                    key={order.id}
+                    className="group bg-white rounded-2xl border border-slate-200 hover:shadow-xl transition-all duration-300 overflow-hidden"
                   >
-                    {config.icon}
-                    {order.status}
-                  </div>
-                </div>
-
-                {/* CARD CENTER - ITEMS LIST */}
-                <div className="p-8 ">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
-                    <div className="flex-1 flex flex-wrap gap-6">
-                      {order.items.map((item, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center gap-4 bg-[#e0e0e0] pr-6 rounded-3xl border border-slate-100 hover:border-[#2A4150]/20 transition-colors"
-                        >
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-20 h-20 rounded-3xl border-4 border-white shadow-sm object-cover"
-                          />
+                    {/* Order Header */}
+                    <div className="p-6 bg-linear-to-r from-slate-50 to-white border-b border-slate-200">
+                      <div className="flex flex-wrap justify-between items-center gap-4">
+                        <div className="flex flex-wrap gap-6">
                           <div>
-                            <h4 className="text-sm font-bold text-slate-800">
-                              {item.name}
-                            </h4>
-                            <p className="text-xs text-slate-400 font-bold">
-                              Qty: 1
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                              Order Date
+                            </p>
+                            <div className="flex items-center gap-2 text-slate-700">
+                              <Calendar size={16} className="text-slate-400" />
+                              <span className="text-sm font-medium">
+                                {new Date(
+                                  order.date || order.createdAt,
+                                ).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                              Order ID
+                            </p>
+                            <p className="text-sm font-mono font-medium text-slate-700">
+                              #{String(order.id).slice(-8)}
                             </p>
                           </div>
                         </div>
-                      ))}
+
+                        <div
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide border ${config.style}`}
+                        >
+                          {config.icon}
+                          {config.label}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="lg:text-right border-t lg:border-t-0 pt-6 lg:pt-0 border-slate-100">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                        Total Bill
-                      </p>
-                      <p className="text-3xl font-black text-[#2A4150]">
-                        ₹{order.total.toLocaleString()}
-                      </p>
+                    {/* Order Items */}
+                    <div className="p-6">
+                      <div className="space-y-4">
+                        {(order.items || order.orderItems || []).map(
+                          (item, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-start gap-4 pb-4 border-b border-slate-100 last:border-0 last:pb-0"
+                            >
+                              {/* Product Image - Fixed Size & Better Styling */}
+                              <div className="shrink-0 w-20 h-20 bg-slate-100 rounded-xl overflow-hidden">
+                                <img
+                                  src={
+                                    item.image
+                                      ? `${BASE_URL}${item.image}`
+                                      : item.product?.images?.[0]?.url
+                                        ? `${BASE_URL}${item.product.images[0].url}`
+                                        : "/api/placeholder/80/80"
+                                  }
+                                  alt={
+                                    item.name || item.product?.name || "Product"
+                                  }
+                                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                  onError={(e) => {
+                                    e.target.src = "/api/placeholder/80/80";
+                                  }}
+                                />
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-semibold text-slate-800 mb-1 line-clamp-2">
+                                  {item.name ||
+                                    item.product?.name ||
+                                    "Product Name"}
+                                </h4>
+                                <div className="flex items-center gap-4 mt-2">
+                                  <p className="text-sm text-slate-600">
+                                    Qty: {item.quantity || 1}
+                                  </p>
+                                  <p className="text-sm font-semibold text-slate-800">
+                                    ₹
+                                    {(
+                                      (item.price || item.unitPrice || 0) *
+                                      (item.quantity || 1)
+                                    ).toLocaleString()}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ),
+                        )}
+                      </div>
+
+                      {/* Order Summary & Actions */}
+                      <div className="mt-6 pt-6 border-t border-slate-200">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                          <div className="flex items-baseline gap-3">
+                            <span className="text-sm text-slate-500">
+                              Total Amount:
+                            </span>
+                            <span className="text-2xl font-bold text-[#2A4150]">
+                              ₹
+                              {(
+                                order.total ||
+                                order.totalAmount ||
+                                0
+                              ).toLocaleString()}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#2A4150] transition-colors rounded-xl border border-slate-200 hover:border-[#2A4150]">
+                              Download Invoice
+                            </button>
+                            {order.status?.toLowerCase() === "pending" && (
+                              <button
+                                onClick={() => handleCancelOrder(order.id)}
+                                disabled={isDeleting}
+                                className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors rounded-xl border border-red-200 hover:border-red-300 disabled:opacity-50"
+                              >
+                                {isDeleting ? "Cancelling..." : "Cancel Order"}
+                              </button>
+                            )}
+                            <button
+                              onClick={() =>
+                                router.push(`/customer/orders/${order.id}`)
+                              }
+                              className="flex items-center justify-center gap-2 bg-[#2A4150] text-white px-6 py-2.5 rounded-xl font-medium text-sm hover:bg-[#1a2f3a] transition-all duration-300 group/btn"
+                            >
+                              Track Order
+                              <ChevronRight
+                                size={16}
+                                className="group-hover/btn:translate-x-0.5 transition-transform"
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-
-                  {/* CARD BOTTOM - ACTIONS */}
-                  <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 pt-8">
-                    <div className="flex items-center gap-6">
-                      <button className="text-[11px] font-bold text-slate-400 hover:text-[#2A4150] transition-colors uppercase tracking-widest">
-                        Invoice PDF
-                      </button>
-                      <button className="text-[11px] font-bold text-slate-400 hover:text-red-500 transition-colors uppercase tracking-widest">
-                        Cancel Order
-                      </button>
-                    </div>
-
-                    <button
-                      onClick={() =>
-                        router.push(`/customer/orders/${order.id}`)
-                      }
-                      className="group/btn flex items-center justify-center gap-3 bg-[#2A4150] text-white px-8 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-blue-900/10 hover:shadow-blue-900/20 transition-all duration-300 w-full sm:w-auto active:scale-95"
-                    >
-                      Track My Package
-                      <ChevronRight
-                        size={18}
-                        className="group-hover/btn:translate-x-1 transition-transform"
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </main>
-    </div>
+                );
+              })}
+            </div>
+          )}
+        </main>
+      </div>
+    </AuthGuard>
   );
 }
