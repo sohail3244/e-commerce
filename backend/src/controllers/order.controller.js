@@ -2,6 +2,7 @@ import prisma from "../db/db.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import PDFDocument from "pdfkit";
 
 // GET all orders
 export const getAllOrders = asyncHandler(async (req, res) => {
@@ -245,3 +246,152 @@ export const deleteOrder = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, "Order deleted successfully"));
 });
+
+// invoice generation
+export const downloadInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        customer: true,
+        items: {
+          include: { product: true },
+        },
+        shipping: true,
+      },
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    const doc = new PDFDocument({ margin: 50, size: "A4" });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=invoice-${order.id}.pdf`
+    );
+
+    doc.pipe(res);
+
+    // COLORS & CONSTANTS
+    const primaryColor = "#2A4150";
+    const secondaryColor = "#64748B";
+    const borderColor = "#E2E8F0";
+
+    // HEADER (Logo & Invoice Info)
+    doc
+      .fillColor(primaryColor)
+      .fontSize(24)
+      .font("Helvetica-Bold")
+      .text("AZZUNIQUE", 50, 50);
+
+    doc
+      .fillColor(secondaryColor)
+      .fontSize(10)
+      .font("Helvetica")
+      .text("Premium E-commerce Solutions", 50, 80);
+
+    doc
+      .fillColor(primaryColor)
+      .fontSize(20)
+      .text("INVOICE", 350, 50, { align: "right", width: 200 });
+
+    doc
+      .fillColor(secondaryColor)
+      .fontSize(9) 
+      .font("Helvetica")
+      .text(`Invoice No: ORD-${order.id}`, 250, 75, { align: "right", width: 300 }) 
+      .text(`Date: ${new Date(order.createdAt).toLocaleDateString('en-IN')}`, 250, 90, { align: "right", width: 300 });
+
+    doc.moveDown(2);
+    doc.moveTo(50, 115).lineTo(550, 115).strokeColor(borderColor).stroke();
+    // BILLING & SHIPPING INFO
+    const infoY = 140;
+    doc
+      .fillColor(primaryColor)
+      .fontSize(12)
+      .font("Helvetica-Bold")
+      .text("Bill To:", 50, infoY)
+      .text("Shipping Address:", 300, infoY);
+
+    doc
+      .fillColor(secondaryColor)
+      .fontSize(10)
+      .font("Helvetica")
+      .text(order.customer?.name || "Customer", 50, infoY + 20)
+      .text(order.customer?.email || "", 50, infoY + 35);
+
+    if (order.shipping) {
+      const s = order.shipping;
+      doc
+        .text(`${s.firstName} ${s.lastName}`, 300, infoY + 20)
+        .text(`${s.address}`, 300, infoY + 35, { width: 200 })
+        .text(`${s.city}, ${s.zip}`, 300, infoY + 50);
+    }
+
+    doc.moveDown(4);
+
+    // ITEMS TABLE HEADER
+    const tableTop = 240;
+    doc
+      .rect(50, tableTop, 500, 25)
+      .fill(primaryColor);
+
+    doc
+      .fillColor("#FFFFFF")
+      .font("Helvetica-Bold")
+      .text("Product", 60, tableTop + 7)
+      .text("Qty", 350, tableTop + 7, { width: 50, align: "center" })
+      .text("Price", 420, tableTop + 7, { width: 50, align: "right" })
+      .text("Total", 480, tableTop + 7, { width: 60, align: "right" });
+
+    // TABLE ROWS
+    let currentY = tableTop + 25;
+    
+    order.items.forEach((item, index) => {
+      const itemTotal = item.price * item.quantity;
+      
+      // Zebra Striping logic
+      if (index % 2 === 0) {
+        doc.rect(50, currentY, 500, 25).fill("#F8FAFC");
+      }
+
+      doc
+        .fillColor("#334155")
+        .font("Helvetica")
+        .text(item.product.name, 60, currentY + 7, { width: 280, lineBreak: false })
+        .text(item.quantity.toString(), 350, currentY + 7, { width: 50, align: "center" })
+        .text(`Rs.${item.price}`, 420, currentY + 7, { width: 50, align: "right" })
+        .text(`Rs.${itemTotal}`, 480, currentY + 7, { width: 60, align: "right" });
+
+      currentY += 25;
+    });
+
+    // TOTAL SECTION
+    doc.moveTo(50, currentY + 10).lineTo(550, currentY + 10).strokeColor(borderColor).stroke();
+
+    const footerY = currentY + 25;
+    doc
+      .fillColor(primaryColor)
+      .fontSize(14)
+      .font("Helvetica-Bold")
+      .text("Grand Total:", 350, footerY)
+      .text(`Rs.${order.total.toLocaleString()}`, 480, footerY, { width: 60, align: "right" });
+
+    // FOOTER NOTE
+    doc
+      .fillColor(secondaryColor)
+      .fontSize(10)
+      .font("Helvetica-Oblique")
+      .text("Thank you for shopping with Azzunique!", 50, 750, { align: "center", width: 500 });
+
+    doc.end();
+  } catch (error) {
+    console.log("Invoice Error:", error);
+    res.status(500).json({ message: "Error generating invoice" });
+  }
+};

@@ -40,9 +40,26 @@ model Category {
   createdby   String
   creator     User      @relation("CreatedCategories", fields: [createdby], references: [id], map: "Category_createdby_fkey")
   products    Product[]
+  subCategories SubCategory[]
 
   @@index([createdby], map: "Category_createdby_fkey")
   @@map("category")
+}
+
+model SubCategory {
+  id          String    @id @default(uuid())
+  name        String
+  sku         String    @unique
+  description String?
+  image       String?
+
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  products    Product[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Product {
@@ -57,6 +74,8 @@ model Product {
   orderItems  OrderItem[]
   category    Category       @relation(fields: [categoryid], references: [id], map: "Product_categoryid_fkey")
   creator     User           @relation("CreatedProducts", fields: [createdby], references: [id], map: "Product_createdby_fkey")
+  subCategoryId String?
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
   images      ProductImage[]
 
   @@index([categoryid], map: "Product_categoryid_fkey")

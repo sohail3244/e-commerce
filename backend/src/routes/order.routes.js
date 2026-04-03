@@ -5,6 +5,7 @@ import {
   createOrder,
   updateOrder,
   deleteOrder,
+  downloadInvoice,
 } from "../controllers/order.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
@@ -15,5 +16,6 @@ router.get("/get-orders", authMiddleware, getAllOrders);
 router.get("/get-order/:id", authMiddleware, getOrderById);
 router.put("/update-order/:id", authMiddleware, updateOrder);
 router.delete("/delete-order/:id", authMiddleware, deleteOrder);
+router.get("/invoice/:id", authMiddleware, downloadInvoice);
 
 export default router;

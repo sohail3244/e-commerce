@@ -8,6 +8,7 @@ import {
   useDeleteCategory,
   useUpdateCategory,
 } from "@/lib/mutations/useCategory";
+import { useCreateSubCategory } from "@/lib/mutations/useSubCategories";
 import { useCategories } from "@/lib/queries/useCategories";
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
@@ -19,17 +20,38 @@ export default function Categories() {
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
   const deleteCategory = useDeleteCategory();
-
+  const createSubCategory = useCreateSubCategory();
   const handleAddCategory = (data) => {
-    createCategory.mutate(data, {
-      onSuccess: () => {
-        toast.success("Category created successfully ");
-        setOpen(false);
-      },
-      onError: (error) => {
-        toast.error(error?.response?.data?.message || "Create failed ");
-      },
-    });
+    if (data.type === "subcategory") {
+      createSubCategory.mutate(
+        {
+          name: data.name,
+          sku: data.sku,
+          description: data.description,
+          categoryId: data.categoryId,
+          image: data.image,
+        },
+        {
+          onSuccess: () => {
+            toast.success("SubCategory created successfully 🔥");
+            setOpen(false);
+          },
+          onError: (error) => {
+            toast.error(error?.response?.data?.message || "Create failed");
+          },
+        },
+      );
+    } else {
+      createCategory.mutate(data, {
+        onSuccess: () => {
+          toast.success("Category created successfully ");
+          setOpen(false);
+        },
+        onError: (error) => {
+          toast.error(error?.response?.data?.message || "Create failed ");
+        },
+      });
+    }
   };
 
   const handleDeleteCategory = (id) => {

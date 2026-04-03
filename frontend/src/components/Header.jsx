@@ -132,6 +132,15 @@ export default function Header() {
                   <NavLink item={cat.name} />
                 </li>
               ))}
+              <li key="about-us" className="shrink-0">
+                <NavLink item="ABOUT US" />
+              </li>
+              <li key="free-diet-plans" className="shrink-0">
+                <NavLink item="FREE DIET PLANS" />
+              </li>
+              <li key="consultation" className="shrink-0">
+                <NavLink item="TALK TO OUR EXPERTS" />
+              </li>
             </ul>
           </div>
         </nav>
@@ -156,7 +165,17 @@ function StoreLocator() {
 
 function NavLink({ item }) {
   const slug = item.toLowerCase().replace(/\s+/g, "-");
-  const href = item === "HOME" ? "/" : `/category/${slug}`;
+  let href = `/category/${slug}`;
+
+  if (item === "HOME") {
+    href = "/";
+  } else if (item === "ABOUT US") {
+    href = "/about-us";
+  } else if (item === "FREE DIET PLANS") {
+    href = "/free-diet-plans";
+  } else if (item === "TALK TO OUR EXPERTS") {
+    href = "/consultation";
+  }
 
   return (
     <Link

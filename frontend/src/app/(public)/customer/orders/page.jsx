@@ -17,7 +17,7 @@ import {
 import Button from "@/components/ui/Button";
 import AuthGuard from "@/components/common/AuthGuard";
 import { useGetOrders } from "@/lib/queries/useOrders";
-import { useDeleteOrder } from "@/lib/mutations/useOrders";
+import { useDeleteOrder, useDownloadInvoice } from "@/lib/mutations/useOrders";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_IMAGE_URL;
 
@@ -26,6 +26,8 @@ export default function OrdersPage() {
   const { data, isLoading, isError } = useGetOrders();
   const orders = data?.orders || data || [];
   const { mutate: deleteOrder, isLoading: isDeleting } = useDeleteOrder();
+  const { mutate: downloadInvoice, isLoading: downloading } =
+    useDownloadInvoice();
 
   const handleCancelOrder = (id) => {
     if (confirm("Are you sure you want to cancel this order?")) {
@@ -262,8 +264,14 @@ export default function OrdersPage() {
                           </div>
 
                           <div className="flex flex-col sm:flex-row gap-3">
-                            <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#2A4150] transition-colors rounded-xl border border-slate-200 hover:border-[#2A4150]">
-                              Download Invoice
+                            <button
+                              onClick={() => downloadInvoice(order.id)}
+                              disabled={downloading}
+                              className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#2A4150] transition-colors rounded-xl border border-slate-200 hover:border-[#2A4150]"
+                            >
+                              {downloading
+                                ? "Downloading..."
+                                : "Download Invoice"}
                             </button>
                             {order.status?.toLowerCase() === "pending" && (
                               <button

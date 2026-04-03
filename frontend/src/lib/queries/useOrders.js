@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../api";
 
-// ✅ Get All Orders
+//  Get All Orders
 export const useGetOrders = () => {
   return useQuery({
     queryKey: ["orders"],
@@ -12,7 +12,7 @@ export const useGetOrders = () => {
   });
 };
 
-// ✅ Get Single Order
+//  Get Single Order
 export const useOrder = (id) => {
   return useQuery({
     queryKey: ["order", id],
@@ -23,3 +23,4 @@ export const useOrder = (id) => {
     enabled: !!id,
   });
 };
+

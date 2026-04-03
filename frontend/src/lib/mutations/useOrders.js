@@ -48,3 +48,31 @@ export const useDeleteOrder = () => {
     },
   });
 };
+
+// doenload invoice
+export const useDownloadInvoice = () => {
+  return useMutation({
+    mutationFn: async (orderId) => {
+      const res = await api.get(`/order/invoice/${orderId}`, {
+        responseType: "blob", // 🔥 important
+      });
+
+      return { data: res.data, orderId };
+    },
+
+    onSuccess: ({ data, orderId }) => {
+      const url = window.URL.createObjectURL(new Blob([data]));
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `invoice-${orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    },
+
+    onError: () => {
+      alert("Invoice download failed");
+    },
+  });
+};

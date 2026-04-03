@@ -78,8 +78,8 @@ export default function CartPage() {
   if (!isHydrated) return <div className="min-h-screen bg-[#F8FAFC]" />;
 
   if (reduxItems.length === 0 && !showSuccessDialog) {
-  return <EmptyCartView />;
-}
+    return <EmptyCartView />;
+  }
 
   const handlePlaceOrder = () => {
     // 🔐 CHECK LOGIN FIRST
@@ -112,16 +112,16 @@ export default function CartPage() {
 
     createOrder(payload, {
       onSuccess: (res) => {
-  const orderId = res?.data?.data?.id;
+        const orderId = res?.data?.data?.id;
 
-  console.log("ORDER RESPONSE:", res);
+        console.log("ORDER RESPONSE:", res);
 
-  setCreatedOrderId(orderId);
-  setShowSuccessDialog(true);
+        setCreatedOrderId(orderId);
+        setShowSuccessDialog(true);
 
-  dispatch(setCart([]));
-  localStorage.removeItem("cart");
-},
+        dispatch(setCart([]));
+        localStorage.removeItem("cart");
+      },
       onError: (err) => {
         console.log(err);
         alert("Order failed");
@@ -131,147 +131,153 @@ export default function CartPage() {
 
   return (
     <>
-    <div className="min-h-screen bg-[#F8FAFC] py-8 md:py-12 px-4 animate-in fade-in duration-500">
-      <div className="max-w-6xl mx-auto">
-        {/* Breadcrumb & Title */}
-        <header className="mb-8">
-          <Link
-            href="/"
-            className="group inline-flex items-center gap-2 text-slate-500 hover:text-[#2A4150] transition-colors mb-4 text-sm font-semibold"
-          >
-            <ArrowLeft
-              size={16}
-              className="group-hover:-translate-x-1 transition-transform"
-            />
-            Back to Shop
-          </Link>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">
-            Your Bag{" "}
-            <span className="text-slate-400 font-normal">
-              ({reduxItems.length})
-            </span>
-          </h1>
-        </header>
+      <div className="min-h-screen bg-[#F8FAFC] py-8 md:py-12 px-4 animate-in fade-in duration-500">
+        <div className="max-w-6xl mx-auto">
+          {/* Breadcrumb & Title */}
+          <header className="mb-8">
+            <Link
+              href="/"
+              className="group inline-flex items-center gap-2 text-slate-500 hover:text-[#2A4150] transition-colors mb-4 text-sm font-semibold"
+            >
+              <ArrowLeft
+                size={16}
+                className="group-hover:-translate-x-1 transition-transform"
+              />
+              Back to Shop
+            </Link>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+              Your Bag{" "}
+              <span className="text-slate-400 font-normal">
+                ({reduxItems.length})
+              </span>
+            </h1>
+          </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Main Content: Left Column */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Shipping Promo */}
-            <section className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center gap-4 mb-3">
-                <div
-                  className={`p-2 rounded-xl ${shipping === 0 ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-[#2A4150]"}`}
-                >
-                  <Truck size={22} />
-                </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 leading-none">
-                    {shipping === 0
-                      ? "Free Shipping Unlocked"
-                      : "Almost there!"}
-                  </h4>
-                  <p className="text-xs text-slate-500 mt-1 uppercase font-black tracking-wider">
-                    {shipping === 0
-                      ? "Your order ships for free"
-                      : `Add ₹${FREE_SHIPPING_MIN - subtotal} for free delivery`}
-                  </p>
-                </div>
-              </div>
-              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-1000 ease-out ${shipping === 0 ? "bg-emerald-500" : "bg-[#2A4150]"}`}
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </section>
-
-            {/* Cart Items */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm divide-y divide-slate-100">
-              {reduxItems.map((item) => (
-                <CartItem
-                  key={item.id}
-                  item={item}
-                  onUpdate={(delta) =>
-                    dispatch(updateQty({ id: item.id, delta }))
-                  }
-                  onRemove={() => dispatch(removeFromCart(item.id))}
-                />
-              ))}
-            </div>
-
-            {/* Address & Payment Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <SelectionCard
-                title="Shipping To"
-                icon={<MapPin size={18} />}
-                isError={!selectedAddress}
-                link="/customer/address"
-              >
-                {selectedAddress ? (
-                  <div className="text-sm">
-                    <p className="font-bold text-slate-800">
-                      {selectedAddress.address}
-                    </p>
-                    <p className="text-slate-500">
-                      {selectedAddress.city}, {selectedAddress.state}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Main Content: Left Column */}
+            <div className="lg:col-span-8 space-y-6">
+              {/* Shipping Promo */}
+              <section className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="flex items-center gap-4 mb-3">
+                  <div
+                    className={`p-2 rounded-xl ${shipping === 0 ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-[#2A4150]"}`}
+                  >
+                    <Truck size={22} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 leading-none">
+                      {shipping === 0
+                        ? "Free Shipping Unlocked"
+                        : "Almost there!"}
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-1 uppercase font-black tracking-wider">
+                      {shipping === 0
+                        ? "Your order ships for free"
+                        : `Add ₹${FREE_SHIPPING_MIN - subtotal} for free delivery`}
                     </p>
                   </div>
-                ) : (
-                  "Select an address to proceed"
-                )}
-              </SelectionCard>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-1000 ease-out ${shipping === 0 ? "bg-emerald-500" : "bg-[#2A4150]"}`}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </section>
 
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <CreditCard size={18} /> Payment
-                </h3>
-                <div className="flex gap-3">
-                  {["ONLINE", "COD"].map((method) => (
-                    <button
-                      key={method}
-                      onClick={() => setPaymentMethod(method)}
-                      className={`flex-1 py-3 rounded-xl border-2 transition-all font-bold text-sm ${
-                        paymentMethod === method
-                          ? "border-[#2A4150] bg-[#2A4150]/5 text-[#2A4150]"
-                          : "border-slate-100 text-slate-400 hover:border-slate-200"
-                      }`}
-                    >
-                      {method === "COD" ? "Cash" : "UPI/Card"}
-                    </button>
-                  ))}
+              {/* Cart Items */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm divide-y divide-slate-100">
+                {reduxItems.map((item) => (
+                  <CartItem
+                    key={item.id}
+                    item={item}
+                    onUpdate={(delta) =>
+                      dispatch(updateQty({ id: item.id, delta }))
+                    }
+                    onRemove={() => dispatch(removeFromCart(item.id))}
+                  />
+                ))}
+              </div>
+
+              {/* Address & Payment Selection */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <SelectionCard
+                  title="Shipping To"
+                  icon={<MapPin size={18} />}
+                  isError={!selectedAddress}
+                  link="/customer/address"
+                >
+                  {selectedAddress ? (
+                    <div className="text-sm">
+                      <p className="font-bold text-slate-800">
+                        {selectedAddress.address}
+                      </p>
+                      <p className="text-slate-500">
+                        {selectedAddress.city}, {selectedAddress.state}
+                      </p>
+                    </div>
+                  ) : (
+                    "Select an address to proceed"
+                  )}
+                </SelectionCard>
+
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                  <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <CreditCard size={18} /> Payment
+                  </h3>
+                  <div className="flex gap-3">
+                    {["ONLINE", "COD"].map((method) => (
+                      <button
+                        key={method}
+                        onClick={() => setPaymentMethod(method)}
+                        className={`flex-1 py-3 rounded-xl border-2 transition-all font-bold text-sm ${
+                          paymentMethod === method
+                            ? "border-[#2A4150] bg-[#2A4150]/5 text-[#2A4150]"
+                            : "border-slate-100 text-slate-400 hover:border-slate-200"
+                        }`}
+                      >
+                        {method === "COD" ? "Cash" : "UPI/Card"}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Sidebar: Right Column */}
-          <aside className="lg:col-span-4 lg:sticky lg:top-8 space-y-4">
-            <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50">
-              <h2 className="text-xl font-black text-slate-900 mb-6">
-                Order Summary
-              </h2>
+            {/* Sidebar: Right Column */}
+            <aside className="lg:col-span-4 lg:sticky lg:top-8 space-y-4">
+              <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50">
+                <h2 className="text-xl font-black text-slate-900 mb-6">
+                  Order Summary
+                </h2>
 
-              <div className="space-y-4 mb-6">
-                <PriceRow label="Subtotal" value={subtotal} />
-                <PriceRow
-                  label="Shipping"
-                  value={shipping}
-                  isFree={shipping === 0}
-                />
-                {discount > 0 && (
-                  <PriceRow label="Bag Discount" value={-discount} isDiscount />
-                )}
+                <div className="space-y-4 mb-6">
+                  <PriceRow label="Subtotal" value={subtotal} />
+                  <PriceRow
+                    label="Shipping"
+                    value={shipping}
+                    isFree={shipping === 0}
+                  />
+                  {discount > 0 && (
+                    <PriceRow
+                      label="Bag Discount"
+                      value={-discount}
+                      isDiscount
+                    />
+                  )}
 
-                <div className="pt-4 border-t border-dashed border-slate-200 flex justify-between items-end">
-                  <span className="font-bold text-slate-900">Total Amount</span>
-                  <span className="text-3xl font-black text-[#2A4150] tracking-tighter italic">
-                    ₹{total}
-                  </span>
+                  <div className="pt-4 border-t border-dashed border-slate-200 flex justify-between items-end">
+                    <span className="font-bold text-slate-900">
+                      Total Amount
+                    </span>
+                    <span className="text-3xl font-black text-[#2A4150] tracking-tighter italic">
+                      ₹{total}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-3">
-                {/* <InputField
+                <div className="space-y-3">
+                  {/* <InputField
                   buttonText="Apply"
                   showButton={true}
                   placeholder="Coupon Code"
@@ -280,48 +286,45 @@ export default function CartPage() {
                   className="h-12 rounded-xl"
                 />
                  */}
-                <Button
-                  disabled={!selectedAddress || !paymentMethod || isPending}
-                  onClick={handlePlaceOrder}
-                  className="w-full py-4 text-lg font-black uppercase tracking-wider"
-                  text="Place Order"
-                  icon={<ChevronRight size={20} />}
-                />
-              </div>
+                  <Button
+                    disabled={!selectedAddress || !paymentMethod || isPending}
+                    onClick={handlePlaceOrder}
+                    className="w-full py-4 text-lg font-black uppercase tracking-wider"
+                    text="Place Order"
+                    icon={<ChevronRight size={20} />}
+                  />
+                </div>
 
-              {/* Security Badges */}
-              <div className="mt-6 pt-6 border-t border-slate-50 flex justify-around opacity-40 grayscale">
-                <ShieldCheck size={20} />
-                <RotateCcw size={20} />
-                <CreditCard size={20} />
+                {/* Security Badges */}
+                <div className="mt-6 pt-6 border-t border-slate-50 flex justify-around opacity-40 grayscale">
+                  <ShieldCheck size={20} />
+                  <RotateCcw size={20} />
+                  <CreditCard size={20} />
+                </div>
               </div>
-            </div>
-          </aside>
+            </aside>
+          </div>
         </div>
       </div>
-    </div>
-    <ConfirmationDialog
-  open={showSuccessDialog}
-  variant="success"
-  title="Order Placed Successfully "
-  description="Your order has been placed successfully. You can track your order status anytime."
-
-  showCancelButton={false}
-  confirmText="Track Order"
-
-  onConfirm={() => {
-  if (createdOrderId) {
-    router.push(`/customer/orders/${createdOrderId}`);
-  } else {
-    console.error("Order ID missing");
-  }
-}}
-
-  onCancel={() => {
-  setShowSuccessDialog(false);
-  setCreatedOrderId(null);
-}}
-/>
+      <ConfirmationDialog
+        open={showSuccessDialog}
+        variant="success"
+        title="Order Placed Successfully "
+        description="Your order has been placed successfully. You can track your order status anytime."
+        showCancelButton={false}
+        confirmText="Track Order"
+        onConfirm={() => {
+          if (createdOrderId) {
+            router.push(`/customer/orders/${createdOrderId}`);
+          } else {
+            console.error("Order ID missing");
+          }
+        }}
+        onCancel={() => {
+          setShowSuccessDialog(false);
+          setCreatedOrderId(null);
+        }}
+      />
     </>
   );
 }
