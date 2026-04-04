@@ -4,6 +4,7 @@ import React, { use } from "react";
 import ProductCard from "@/components/common/ProductCard";
 import { useSearchParams } from "next/navigation";
 import { useProducts } from "@/lib/queries/useProducts";
+import { BoxIcon } from "lucide-react";
 
 export default function CategoryPage({ params }) {
   const { slug } = use(params);
@@ -12,13 +13,20 @@ export default function CategoryPage({ params }) {
 
   const { data: products = [], isLoading } = useProducts();
 
-  const filteredProducts = products.filter((product) => {
-    const normalizedSlug = slug.replace(/-/g, " ").toLowerCase();
+  const normalize = (str) =>
+  str?.toLowerCase().replace(/\s+/g, "-");
 
-    if (slug === "best-seller") return product.isBestSeller;
+const filteredProducts = products.filter((product) => {
+  if (slug === "best-seller") return product.isBestSeller;
 
-    return product.category?.name?.toLowerCase() === normalizedSlug;
-  });
+  const categorySlug = normalize(product.category?.name);
+  const subCategorySlug = normalize(product.subCategory?.name);
+
+  return (
+    categorySlug === slug ||
+    subCategorySlug === slug
+  );
+});
 
   if (isLoading) {
     return (
@@ -68,19 +76,7 @@ export default function CategoryPage({ params }) {
       ) : (
         <div className="flex flex-col items-center justify-center py-32 text-center">
           <div className="bg-slate-50 p-6 rounded-full mb-4">
-            <svg
-              className="w-12 h-12 text-slate-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="box-open"
-              />
-            </svg>
+            <BoxIcon className="w-16 h-16 text-slate-300" />
           </div>
           <h3 className="text-xl text-slate-800 font-bold">
             No products found

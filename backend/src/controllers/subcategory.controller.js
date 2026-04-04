@@ -2,7 +2,10 @@ import prisma from "../db/db.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { deleteOldImage } from "../utils/utils.js";
+import path from "path";
 
+const UPLOAD_DIR = process.env.UPLOAD_DIR || "/home/shiv/uploads";
 // CREATE
 export const createSubCategory = asyncHandler(async (req, res) => {
   const { name, sku, description, categoryId } = req.body;
@@ -130,25 +133,42 @@ export const deleteSubCategory = asyncHandler(async (req, res) => {
 
   const subCategory = await prisma.subCategory.findUnique({
     where: { id },
+    include: {
+      products: true, // 👈 IMPORTANT
+    },
   });
 
   if (!subCategory) {
     return ApiError.send(res, 404, "SubCategory not found");
   }
 
-  // ✅ DELETE IMAGE
-  if (subCategory.image) {
-    const fileName = subCategory.image.replace("/uploads/", "");
-    const fullPath = path.join(UPLOAD_DIR, fileName);
-    deleteOldImage(fullPath);
+  // 🚫 BLOCK DELETE IF PRODUCTS EXIST
+  if (subCategory.products.length > 0) {
+    return ApiError.send(
+      res,
+      400,
+      "Cannot delete subcategory. Please delete its products first."
+    );
   }
 
-  // ✅ DELETE (products auto delete via cascade)
+  // ✅ IMAGE DELETE
+  if (subCategory.image) {
+    try {
+      const fileName = subCategory.image.replace("/uploads/", "");
+      const fullPath = path.join(UPLOAD_DIR, fileName);
+      deleteOldImage(fullPath);
+    } catch (err) {
+      console.log("Image delete error:", err.message);
+    }
+  }
+
+  // ✅ DELETE SUBCATEGORY
   await prisma.subCategory.delete({
     where: { id },
   });
 
-  return res.status(200).json(
-    new ApiResponse(200, "SubCategory + Products deleted successfully")
-  );
+  return res.status(200).json({
+    success: true,
+    message: "SubCategory deleted successfully",
+  });
 });

@@ -68,14 +68,21 @@ export default function ProductSection({
           <p className="text-sm text-slate-500 mt-1 max-w-2xl">{description}</p>
         </div>
 
-        <Link href="/category/best-seller">
-          <Button
-            text="VIEW ALL"
-            variant="primary"
-            size="sm"
-            className="px-4 py-2"
-          />
-        </Link>
+        {!isBestSeller && (
+          <Link
+            href={`/category/${title
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .replace("-products", "")}`}
+          >
+            <Button
+              text="VIEW ALL"
+              variant="primary"
+              size="sm"
+              className="px-4 py-2"
+            />
+          </Link>
+        )}
       </div>
 
       {/* Slider Container */}

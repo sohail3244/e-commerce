@@ -17,7 +17,6 @@ export default function ProductCard({
   rating,
   reviews,
   price,
-  badge,
   className = "",
 }) {
   const dispatch = useDispatch();
@@ -26,16 +25,11 @@ export default function ProductCard({
   return (
     <Link href={`/product/${id}`}>
       <div
-        className={`relative bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col w-75 h-full ${className}`}
-      >
-        {badge && (
-          <div className="absolute top-0 left-0 bg-[#2A4150] text-white text-[10px] font-bold px-2 py-1 rounded-br-lg z-10 uppercase">
-            {badge}
-          </div>
-        )}
+        className={`relative bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col w-75 h-full ${className}`}>
+        
 
         <div className="w-full">
-          <img src={image} alt={title} className="w-full h-64 object-cover" />
+          <img src={image} alt={title} className="w-full h-64 content-fit " />
         </div>
 
         <div className="px-4 pb-2 flex flex-col items-center text-center gap-2 flex-1 bg-[#e0e0e0]">

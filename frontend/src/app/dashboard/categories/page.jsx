@@ -8,7 +8,11 @@ import {
   useDeleteCategory,
   useUpdateCategory,
 } from "@/lib/mutations/useCategory";
-import { useCreateSubCategory } from "@/lib/mutations/useSubCategories";
+import {
+  useCreateSubCategory,
+  useDeleteSubCategory,
+  useUpdateSubCategory,
+} from "@/lib/mutations/useSubCategories";
 import { useCategories } from "@/lib/queries/useCategories";
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
@@ -21,6 +25,8 @@ export default function Categories() {
   const updateCategory = useUpdateCategory();
   const deleteCategory = useDeleteCategory();
   const createSubCategory = useCreateSubCategory();
+  const deleteSubCategory = useDeleteSubCategory();
+  const updateSubCategory = useUpdateSubCategory();
   const handleAddCategory = (data) => {
     if (data.type === "subcategory") {
       createSubCategory.mutate(
@@ -65,12 +71,58 @@ export default function Categories() {
     });
   };
 
+  const handleDeleteSubCategory = (id) => {
+    deleteSubCategory.mutate(id, {
+      onSuccess: () => {
+        toast.success("SubCategory deleted");
+      },
+      onError: (err) => {
+        toast.error(err?.response?.data?.message || "Delete failed");
+      },
+    });
+  };
+
   const [editData, setEditData] = useState(null);
 
-  const handleEditCategory = (row) => {
-    setEditData(row);
-    setOpen(true);
-  };
+  const handleEditCategory = (row, type = "category") => {
+  setEditData({
+    ...row,
+    type, 
+  });
+  setOpen(true);
+};
+
+const handleUpdate = (data) => {
+  if (editData?.type === "subcategory") {
+    updateSubCategory.mutate(
+      { id: editData.id, data },
+      {
+        onSuccess: () => {
+          toast.success("SubCategory updated ✅");
+          setOpen(false);
+          setEditData(null);
+        },
+        onError: (err) => {
+          toast.error(err?.response?.data?.message || "Update failed");
+        },
+      }
+    );
+  } else {
+    updateCategory.mutate(
+      { id: editData.id, data },
+      {
+        onSuccess: () => {
+          toast.success("Category updated ✅");
+          setOpen(false);
+          setEditData(null);
+        },
+        onError: (err) => {
+          toast.error(err?.response?.data?.message || "Update failed");
+        },
+      }
+    );
+  }
+};
 
   if (isLoading) {
     return <div className="p-6">Loading categories...</div>;
@@ -84,6 +136,12 @@ export default function Categories() {
     name: item.name,
     sku: item.sku,
     description: item.description,
+    subCategories: (item.subCategories || []).map((sub) => ({
+  ...sub,
+  image: sub.image
+    ? `http://localhost:8000${sub.image}`
+    : "https://via.placeholder.com/40",
+})),
   }));
 
   const handleUpdateCategory = (data) => {
@@ -131,6 +189,7 @@ export default function Categories() {
               data={formattedData}
               onEdit={handleEditCategory}
               onDelete={handleDeleteCategory}
+              onDeleteSubCategory={handleDeleteSubCategory}
             />
           </div>
         </div>
@@ -142,7 +201,7 @@ export default function Categories() {
           setOpen(false);
           setEditData(null);
         }}
-        onSubmit={editData ? handleUpdateCategory : handleAddCategory}
+        onSubmit={editData ? handleUpdate : handleAddCategory}
         defaultValues={editData}
       />
     </div>

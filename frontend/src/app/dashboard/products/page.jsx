@@ -22,9 +22,9 @@ export default function Products() {
     return products.map((item) => ({
       id: item.id,
       name: item.name,
-      description: item.description, // add this
+      description: item.description, 
       category: item.category,
-      categoryid: item.category?.id, // 🔥 IMPORTANT
+      categoryid: item.category?.id, 
       price: item.price,
       stock: item.stock,
       status: item.status,

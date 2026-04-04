@@ -23,7 +23,7 @@ export const useCreateSubCategory = () => {
     },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subcategories"] });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
   });
 };
@@ -37,7 +37,32 @@ export const useDeleteSubCategory = () => {
       api.delete(`/subcategory/${id}`),
 
     onSuccess: () => {
-      queryClient.invalidateQueries(["subcategories"]);
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+    },
+  });
+};
+
+export const useUpdateSubCategory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }) => {
+      const formData = new FormData();
+
+      formData.append("name", data.name);
+      formData.append("sku", data.sku || "");
+      formData.append("description", data.description || "");
+      formData.append("categoryId", data.categoryId);
+
+      if (data.image) {
+        formData.append("image", data.image);
+      }
+
+      return api.put(`/subcategory/${id}`, formData);
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
   });
 };

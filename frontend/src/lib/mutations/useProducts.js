@@ -12,30 +12,27 @@ export const useCreateProduct = () => {
     mutationFn: (data) => {
       const formData = new FormData();
 
-      formData.append("name", data.name);
-      formData.append("description", data.description);
-      formData.append("categoryid", data.categoryid);
-      formData.append("price", data.price);
-      formData.append("stock", data.stock);
-      formData.append("status", data.status);
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === "images" && value) {
+          Array.from(value).forEach((file) => {
+            formData.append("images", file);
+          });
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, value);
+        }
+      });
 
-      if (data.images) {
-        Array.from(data.images).forEach((file) => {
-          formData.append("images", file);
-        });
-      }
-
-      return api.post("/product/create-product", formData,);
+      return api.post("/product/create-product", formData);
     },
 
     onSuccess: () => {
-  toast.success("Product created successfully ");
-  queryClient.invalidateQueries(["products"]);
-},
+      toast.success("Product created successfully ");
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
 
-onError: (err) => {
-  toast.error(err.response?.data?.message || "Create failed ");
-},
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Create failed ");
+    },
   });
 };
 
@@ -49,33 +46,27 @@ export const useUpdateProduct = () => {
     mutationFn: ({ id, data }) => {
       const formData = new FormData();
 
-      if (data.name) formData.append("name", data.name);
-      if (data.description) formData.append("description", data.description);
-      if (data.categoryid) formData.append("categoryid", data.categoryid);
-      if (data.price) formData.append("price", data.price);
-      if (data.stock) formData.append("stock", data.stock);
-      if (data.status) formData.append("status", data.status);
-
-      // 🔥 FIXED: FileList support
-      if (data.images) {
-        Array.from(data.images).forEach((file) => {
-          formData.append("images", file);
-        });
-      }
-
-      return api.put(`/product/update-product/${id}`, formData, {
-       
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === "images" && value) {
+          Array.from(value).forEach((file) => {
+            formData.append("images", file);
+          });
+        } else if (value !== undefined && value !== null && value !== "") {
+          formData.append(key, value);
+        }
       });
+
+      return api.put(`/product/update-product/${id}`, formData);
     },
 
     onSuccess: () => {
-  toast.success("Product updated successfully ");
-  queryClient.invalidateQueries(["products"]);
-},
+      toast.success("Product updated successfully ");
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
 
-onError: (err) => {
-  toast.error(err.response?.data?.message || "Update failed ");
-},
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Update failed ");
+    },
   });
 };
 

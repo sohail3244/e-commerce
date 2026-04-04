@@ -8,7 +8,8 @@ import { deleteOldImage } from "../utils/utils.js";
 const UPLOAD_DIR = process.env.UPLOAD_DIR || "/home/shiv/uploads";
 
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, description, categoryid, price, stock, status } = req.body;
+  const { name, description, categoryid, subCategoryId, price, stock, status } =
+    req.body;
   const { id: createdby, role } = req.user;
 
   const imagePaths =
@@ -18,7 +19,15 @@ const createProduct = asyncHandler(async (req, res) => {
     return ApiError.send(res, 403, "Only admins can create a product.");
   }
 
-  if (!name || !description || !categoryid || !price || !stock || !status) {
+  if (
+    !name ||
+    !description ||
+    !categoryid ||
+    !subCategoryId ||
+    !price ||
+    !stock ||
+    !status
+  ) {
     return ApiError.send(res, 400, "All required fields must be provided.");
   }
 
@@ -27,7 +36,7 @@ const createProduct = asyncHandler(async (req, res) => {
   }
 
   const numericPrice = parseFloat(
-    typeof price === "string" ? price.replace(/[^0-9.]/g, "") : price
+    typeof price === "string" ? price.replace(/[^0-9.]/g, "") : price,
   );
   if (isNaN(numericPrice)) {
     return ApiError.send(res, 400, "Invalid price format.");
@@ -51,6 +60,7 @@ const createProduct = asyncHandler(async (req, res) => {
       name: name.trim(),
       description,
       categoryid,
+      subCategoryId: subCategoryId,
       price: numericPrice,
       stock: numericStock,
       status,
@@ -69,7 +79,7 @@ const createProduct = asyncHandler(async (req, res) => {
 
 const getAllProducts = asyncHandler(async (req, res) => {
   const products = await prisma.product.findMany({
-    include: { category: true, images: true },
+    include: { category: true, images: true, subCategory: true },
     orderBy: { name: "asc" },
   });
 
@@ -97,7 +107,8 @@ const getProductById = asyncHandler(async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { name, description, categoryid, price, stock, status } = req.body;
+  const { name, description, categoryid, subCategoryId, price, stock, status } =
+    req.body;
 
   if (req.user?.role !== "Admin") {
     return ApiError.send(res, 403, "Only admins can update products.");
@@ -166,17 +177,22 @@ const updateProduct = asyncHandler(async (req, res) => {
       name: name?.trim() ?? existingProduct.name,
       description: description ?? existingProduct.description,
       categoryid: categoryid ?? existingProduct.categoryid,
-      price: numericPrice,
-      stock: numericStock,
+      subCategoryId:
+        subCategoryId !== undefined
+          ? subCategoryId
+          : existingProduct.subCategoryId, // ✅ IMPORTANT
+      price: price ? parseFloat(price) : existingProduct.price,
+      stock: stock ? parseInt(stock) : existingProduct.stock,
       status: status ?? existingProduct.status,
     },
+
     include: { images: true },
   });
 
   return res.status(200).json(
     new ApiResponse(200, "Product updated successfully.", {
       product: updatedProduct,
-    })
+    }),
   );
 });
 

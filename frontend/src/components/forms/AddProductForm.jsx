@@ -7,6 +7,7 @@ import Button from "../ui/Button";
 import { Upload, Package, Layers, Info } from "lucide-react";
 import { useEffect } from "react";
 import { useCategories } from "@/lib/queries/useCategories";
+import { useCategoryWithSubCategories } from "@/lib/queries/useSubCategories";
 
 export default function AddProductForm({
   title = "",
@@ -20,12 +21,16 @@ export default function AddProductForm({
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
     reset,
   } = useForm();
-
+  const selectedCategory = watch("categoryid");
   const { data: categories = [], isLoading } = useCategories();
 
+  const { data: categoryData } = useCategoryWithSubCategories(selectedCategory);
+
+  const subCategories = categoryData?.subCategories || [];
   const handleFormSubmit = (data) => {
     onSubmit?.(data);
     reset();
@@ -36,13 +41,23 @@ export default function AddProductForm({
   }, [register]);
 
   useEffect(() => {
+    if (editData) {
+      setValue("name", editData.name);
+      setValue("description", editData.description);
+      setValue("price", editData.price);
+      setValue("stock", editData.stock);
+      setValue("status", editData.status);
+      setValue("categoryid", editData.categoryid);
+    }
+  }, [editData]);
+
+  useEffect(() => {
+  setValue("subCategoryId", "");
+}, [selectedCategory]);
+
+useEffect(() => {
   if (editData) {
-    setValue("name", editData.name);
-    setValue("description", editData.description);
-    setValue("price", editData.price);
-    setValue("stock", editData.stock);
-    setValue("status", editData.status);
-    setValue("categoryid", editData.categoryid);
+    setValue("subCategoryId", editData.subCategoryId);
   }
 }, [editData]);
 
@@ -149,6 +164,32 @@ export default function AddProductForm({
               </select>
             </div>
           </div>
+          <div className="space-y-1">
+  <label className="text-sm font-semibold text-slate-700">
+    SubCategory *
+  </label>
+
+  <select
+    {...register("subCategoryId", {
+      required: "SubCategory is required",
+    })}
+    className="w-full h-11.25 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm"
+  >
+    <option value="">Select SubCategory</option>
+
+    {subCategories.map((sub) => (
+      <option key={sub.id} value={sub.id}>
+        {sub.name}
+      </option>
+    ))}
+  </select>
+
+  {errors.subCategoryId && (
+    <p className="text-red-500 text-[11px] mt-1">
+      {errors.subCategoryId.message}
+    </p>
+  )}
+</div>
         </div>
 
         {/* Section 4: Image Upload */}

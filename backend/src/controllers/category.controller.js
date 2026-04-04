@@ -59,7 +59,7 @@ const createCategory = asyncHandler(async (req, res) => {
 // Get all categories
 const getAllCategories = asyncHandler(async (req, res) => {
   const categories = await prisma.category.findMany({
-    include: { creator: true, products: true },
+    include: { creator: true, products: true, subCategories: true },
   });
 
   return res
@@ -138,40 +138,52 @@ const updateCategory = asyncHandler(async (req, res) => {
 
 // Delete category
 const deleteCategory = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  if (req.user?.role !== "Admin") {
-    return ApiError.send(res, 403, "Only admins can delete a category.");
-  }
+    if (req.user?.role !== "Admin") {
+      return ApiError.send(res, 403, "Only admins can delete a category.");
+    }
 
-  const existingCategory = await prisma.category.findUnique({
-    where: { id },
-    include: { products: true },
-  });
+    const existingCategory = await prisma.category.findUnique({
+      where: { id },
+      include: { products: true },
+    });
 
-  if (!existingCategory) {
-    return ApiError.send(res, 404, "Category not found.");
-  }
+    if (!existingCategory) {
+      return ApiError.send(res, 404, "Category not found.");
+    }
 
-  // Delete category image
-  if (existingCategory.image) {
-    const fileName = existingCategory.image.replace("/uploads/", "");
-    const fullPath = path.join(UPLOAD_DIR, fileName);
-    deleteOldImage(fullPath);
-  }
+    // ❌ BLOCK DELETE (Recommended)
+    if (existingCategory.products.length > 0) {
+      return ApiError.send(
+        res,
+        400,
+        "Cannot delete category. Please delete its subcategories   first."
+      );
+    }
 
-  // Delete related products
-  if (existingCategory.products.length > 0) {
-    await prisma.product.deleteMany({
-      where: { categoryid: id },
+    // ✅ DELETE IMAGE
+    if (existingCategory.image) {
+      const fileName = existingCategory.image.replace("/uploads/", "");
+      const fullPath = path.join(UPLOAD_DIR, fileName);
+      deleteOldImage(fullPath);
+    }
+
+    // ✅ DELETE CATEGORY
+    await prisma.category.delete({ where: { id } });
+
+    return res.status(200).json(
+      new ApiResponse(200, "Category deleted successfully")
+    );
+  } catch (error) {
+    console.log("DELETE CATEGORY ERROR:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while deleting category",
     });
   }
-
-  await prisma.category.delete({ where: { id } });
-
-  return res.status(200).json(
-    new ApiResponse(200, "Category and its products deleted successfully")
-  );
 });
 
 export {

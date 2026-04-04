@@ -12,15 +12,13 @@ export default function Home() {
     process.env.NEXT_PUBLIC_API_BASE_IMAGE_URL || "http://localhost:8000";
 
   const sliderImages = categories.map((cat) => ({
-  src: cat.image
-    ? `${BASE_URL}${cat.image}`
-    : "https://via.placeholder.com/1200x400",
-  title: cat.name,
-  description: cat.description,
-  link: `/category/${cat.name
-    .toLowerCase()
-    .replace(/\s+/g, "-")}`, 
-}));
+    src: cat.image
+      ? `${BASE_URL}${cat.image}`
+      : "https://via.placeholder.com/1200x400",
+    title: cat.name,
+    description: cat.description,
+    link: `/category/${cat.name.toLowerCase().replace(/\s+/g, "-")}`,
+  }));
 
   return (
     <main className="min-h-screen">
@@ -33,18 +31,23 @@ export default function Home() {
           isBestSeller
         />
 
-        <ProductSection
-          title="Face Products"
-          description="Protect your skin from UV rays"
-          products={products}
-          category="Face"
-        />
-        <ProductSection
-          title="Makeup Products"
-          description="Enhance your natural beauty"
-          products={products}
-          category="Makeup"
-        />
+        {categories.map((cat) => {
+          const categoryProducts = products.filter(
+            (p) => p.category?.name?.toLowerCase() === cat.name?.toLowerCase(),
+          );
+
+          if (categoryProducts.length === 0) return null;
+
+          return (
+            <ProductSection
+              key={cat.id}
+              title={`${cat.name} PRODUCTS`}
+              description={cat.description || `Explore ${cat.name}`}
+              products={categoryProducts}
+              category={cat.name} 
+            />
+          );
+        })}
       </div>
     </main>
   );

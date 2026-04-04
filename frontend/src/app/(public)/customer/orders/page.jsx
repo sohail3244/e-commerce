@@ -17,7 +17,7 @@ import {
 import Button from "@/components/ui/Button";
 import AuthGuard from "@/components/common/AuthGuard";
 import { useGetOrders } from "@/lib/queries/useOrders";
-import { useDeleteOrder, useDownloadInvoice } from "@/lib/mutations/useOrders";
+import { useDeleteOrder, useDownloadInvoice, useUpdateOrder } from "@/lib/mutations/useOrders";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_IMAGE_URL;
 
@@ -25,22 +25,16 @@ export default function OrdersPage() {
   const router = useRouter();
   const { data, isLoading, isError } = useGetOrders();
   const orders = data?.orders || data || [];
-  const { mutate: deleteOrder, isLoading: isDeleting } = useDeleteOrder();
+  const { mutate: updateOrder } = useUpdateOrder();
   const { mutate: downloadInvoice, isLoading: downloading } =
     useDownloadInvoice();
 
   const handleCancelOrder = (id) => {
-    if (confirm("Are you sure you want to cancel this order?")) {
-      deleteOrder(id, {
-        onSuccess: () => {
-          alert("Order cancelled successfully");
-        },
-        onError: () => {
-          alert("Failed to cancel order");
-        },
-      });
-    }
-  };
+  updateOrder({
+    id,
+    data: { status: "Cancelled" }, // 🔥 main change
+  });
+};
 
   if (isLoading) {
     return (
@@ -276,10 +270,9 @@ export default function OrdersPage() {
                             {order.status?.toLowerCase() === "pending" && (
                               <button
                                 onClick={() => handleCancelOrder(order.id)}
-                                disabled={isDeleting}
                                 className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors rounded-xl border border-red-200 hover:border-red-300 disabled:opacity-50"
                               >
-                                {isDeleting ? "Cancelling..." : "Cancel Order"}
+                                cancel
                               </button>
                             )}
                             <button

@@ -72,7 +72,7 @@ model Product {
   status      ProductStatus
   createdby   String
   orderItems  OrderItem[]
-  category    Category       @relation(fields: [categoryid], references: [id], map: "Product_categoryid_fkey")
+  category    Category       @relation(fields: [categoryid], references: [id], map: "Product_categoryid_fkey,")
   creator     User           @relation("CreatedProducts", fields: [createdby], references: [id], map: "Product_createdby_fkey")
   subCategoryId String?
   subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)

@@ -17,7 +17,7 @@ export default function AddCategoryForm({
   onCancel,
 }) {
   const [preview, setPreview] = useState(null);
-  
+
   const {
     register,
     handleSubmit,
@@ -42,7 +42,7 @@ export default function AddCategoryForm({
       const objectUrl = URL.createObjectURL(selectedImage);
       setPreview(objectUrl);
       return () => URL.revokeObjectURL(objectUrl);
-    } else if (typeof selectedImage === 'string' && selectedImage !== "") {
+    } else if (typeof selectedImage === "string" && selectedImage !== "") {
       setPreview(selectedImage);
     } else {
       setPreview(null);
@@ -63,8 +63,12 @@ export default function AddCategoryForm({
     <div className="w-full max-w-2xl mx-auto bg-white p-2">
       {title && (
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-slate-800 tracking-tight">{title}</h2>
-          <p className="text-slate-500 text-sm">Manage categories and sub-categories easily.</p>
+          <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+            {title}
+          </h2>
+          <p className="text-slate-500 text-sm">
+            Manage categories and sub-categories easily.
+          </p>
         </div>
       )}
 
@@ -96,7 +100,10 @@ export default function AddCategoryForm({
                 }))}
                 error={errors.categoryId?.message}
                 {...register("categoryId", {
-                  required: type === "subcategory" ? "Parent category is required" : false,
+                  required:
+                    type === "subcategory"
+                      ? "Parent category is required"
+                      : false,
                 })}
               />
             </div>
@@ -105,7 +112,9 @@ export default function AddCategoryForm({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField
-            label={type === "subcategory" ? "Sub-Category Name" : "Category Name"}
+            label={
+              type === "subcategory" ? "Sub-Category Name" : "Category Name"
+            }
             placeholder="e.g. Laptops"
             icon={Tag}
             isRequired
@@ -133,17 +142,24 @@ export default function AddCategoryForm({
         {/* Image Upload UI - Ab dono cases mein dikhega */}
         <div className="space-y-2">
           <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-            <ImageIcon size={16} className="text-[#2A4150]" /> 
+            <ImageIcon size={16} className="text-[#2A4150]" />
             {type === "subcategory" ? "Sub-Category Image" : "Category Image"}
           </label>
-          
+
           <div className="group relative border-2 border-dashed border-slate-200 hover:border-[#2A4150] hover:bg-slate-50 transition-all rounded-xl p-4 min-h-35 flex flex-col items-center justify-center overflow-hidden">
             {preview ? (
               <div className="relative w-full h-40">
-                <img src={preview} alt="Preview" className="w-full h-full object-contain rounded-lg" />
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-full h-full object-contain rounded-lg"
+                />
                 <button
                   type="button"
-                  onClick={() => { setValue("image", null); setPreview(null); }}
+                  onClick={() => {
+                    setValue("image", null);
+                    setPreview(null);
+                  }}
                   className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 shadow-md transform translate-x-1/2 -translate-y-1/2"
                 >
                   <X size={14} />
@@ -155,8 +171,12 @@ export default function AddCategoryForm({
                   <Upload size={24} className="text-[#2A4150]" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-slate-600 font-medium">Click to upload or drag & drop</p>
-                  <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 5MB</p>
+                  <p className="text-sm text-slate-600 font-medium">
+                    Click to upload or drag & drop
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    PNG, JPG up to 5MB
+                  </p>
                 </div>
               </>
             )}
@@ -184,7 +204,19 @@ export default function AddCategoryForm({
           <Button
             type="submit"
             disabled={isSubmitting}
-            text={isSubmitting ? "Saving..." : submitText}
+            text={
+              isSubmitting
+                ? type === "subcategory"
+                  ? "Saving Sub-Category..."
+                  : "Saving Category..."
+                : defaultValues?.id
+                  ? type === "subcategory"
+                    ? "Update Sub-Category"
+                    : "Update Category"
+                  : type === "subcategory"
+                    ? "Create Sub-Category"
+                    : "Create Category"
+            }
             className="px-8 bg-[#2A4150] hover:bg-[#1e2f3a] text-white shadow-lg disabled:opacity-70"
           />
         </div>
